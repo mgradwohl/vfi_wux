@@ -1,7 +1,7 @@
 # vfi_wux
 Port of VFI to Windows App SDK + WinUI
 
-This is the port of VFI from the Windows NT Resource Kit to Windows App SDK + WinUI in C++.
+This is the port of VFI (Visual File Information) from the Windows NT Resource Kit to Windows App SDK + WinUI in C++.
 
 The code builds. That's about it so far.
 
