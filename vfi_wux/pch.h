@@ -30,3 +30,4 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 
 #include "helpers.h"
+#include "mylist.h"

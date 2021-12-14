@@ -1,11 +1,13 @@
 ﻿#pragma once
 
 #include "MainWindow.g.h"
+#include "MyList.h"
 
 namespace winrt::vfi_wux::implementation
 {
     struct MainWindow : MainWindowT<MainWindow>
     {
+    public:
         MainWindow();
 
         int32_t MyProperty();

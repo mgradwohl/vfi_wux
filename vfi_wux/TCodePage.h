@@ -24,13 +24,13 @@
 #pragma once
 
 #include "pch.h"
-//#include <mlang.h>
 
 class TCodePage  
 {
 public:
 	TCodePage()
 	{
+		m_mcp = {};
 		m_wCodePage = 0;
 		m_pszCodePage = NULL;
 		m_pML = NULL;
@@ -42,13 +42,6 @@ public:
 				m_pML = NULL;
 			}
 		}
-	}
-
-	TCodePage(WORD wCodePage)
-	{
-		m_wCodePage = wCodePage;
-		m_pszCodePage = NULL;
-		CoUninitialize();
 	}
 
 	bool GetCodePageName(WORD wLanguage, UINT CodePage, LPWSTR pszBuf)

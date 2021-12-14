@@ -57,8 +57,6 @@ constexpr size_t maxExtendedPathLength = 0x7FFF - 24;
 #define zero(x)			(::SecureZeroMemory((LPVOID)&x, sizeof(x)))
 
 bool LoadWstring(UINT ID, std::wstring& strDest);
-//bool LoadWstring(LPWSTR pszDest, UINT id);
-// use this one:
 bool LoadWstring(UINT id, LPWSTR pszDest, int cchMax);
 
 
@@ -69,6 +67,7 @@ bool int2str(LPWSTR pszDest, QWORD i);
 bool pipe2null(std::wstring& strSource);
 bool MyGetUserName(std::wstring& strUserName);
 
+// essentially clear() for old school c-style strings
 __forceinline void lstrinit(LPWSTR psz)
 {
 	*psz = '\0';
@@ -78,7 +77,5 @@ uint64_t GetFileSize64(LPCWSTR pszFileSpec);
 bool GetModuleFolder(HINSTANCE hInst, LPWSTR pszFolder);
 bool DoesFileExist(LPCWSTR pszFileName);
 bool DoesFolderExist(LPCWSTR pszFolder);
-//bool PathGetFolder(LPWSTR pszFileSpec);
-//bool PathGetFileName(LPWSTR pszFileSpec);
 
 bool OpenBox(const HWND hWnd, LPCWSTR pszTitle, LPCWSTR pszFilter, std::wstring& strFile, int cchFile, LPCWSTR pszFolder, const DWORD dwFlags);

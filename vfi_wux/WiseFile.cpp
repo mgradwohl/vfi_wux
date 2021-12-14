@@ -32,16 +32,47 @@
 
 CWiseFile::CWiseFile()
 {
-	Init();
+	_strFullPath.clear();
+	_strPath.clear();
+	_strName.clear();
+	_strExt.clear();
+	lstrinit(m_szAttribs);
+	lstrinit(m_szFlags);
+	lstrinit(m_szOS);
+	lstrinit(m_szType);
+
+	zero(m_stLocalCreation);
+	zero(m_stLocalLastAccess);
+	zero(m_stLocalLastWrite);
+
+	zero(m_stUTCCreation);
+	zero(m_stUTCLastAccess);
+	zero(m_stUTCLastWrite);
+
+	m_dwAttribs = 0;
+	m_qwSize = 0;
+	m_qwFileVersion = 0;
+	m_qwProductVersion = 0;
+	m_wLanguage = 0;
+	m_CodePage = 0;
+	m_dwOS = 0;
+	m_dwType = 0;
+	m_dwFlags = 0;
+	m_dwCRC = 0;
+
+	m_fDebugStripped = false;
+	m_fHasVersion = false;
+	m_fszFlags = false;
+	m_fszAttribs = false;
+	m_fszOS = false;
+	m_fszType = false;
+
 	SetState(FWFS_VALID);
 }
 
-CWiseFile::CWiseFile(std::wstring strFileSpec)
+CWiseFile::CWiseFile(std::wstring strFileSpec) : CWiseFile()
 {
-	if (FWF_SUCCESS != Attach(strFileSpec))
-	{
-		Init();
-	}
+	Attach(strFileSpec);
 
 	OrState(FWFS_CRC_PENDING);
 }
@@ -1017,44 +1048,4 @@ int CWiseFile::ReadVersionInfoEx()
 
 	FreeLibrary(h);
 	return FWF_SUCCESS;
-}
-
-bool CWiseFile::Init()
-{
-	_strFullPath.clear();
-	_strPath.clear();
-	_strName.clear();
-	_strExt.clear();
-	lstrinit(m_szAttribs);
-	lstrinit(m_szFlags);
-	lstrinit(m_szOS);
-	lstrinit(m_szType);
-
-	zero(m_stLocalCreation);
-	zero(m_stLocalLastAccess);
-	zero(m_stLocalLastWrite);
-
-	zero(m_stUTCCreation);
-	zero(m_stUTCLastAccess);
-	zero(m_stUTCLastWrite);
-
-	m_dwAttribs = 0;
-	m_qwSize = 0;
-	m_qwFileVersion = 0;
-	m_qwProductVersion = 0;
-	m_wLanguage = 0;
-	m_CodePage = 0;
-	m_dwOS = 0;
-	m_dwType = 0;
-	m_dwFlags = 0;
-	m_dwCRC = 0;
-
-	m_fDebugStripped = false;
-	m_fHasVersion = false;
-	m_fszFlags = false;
-	m_fszAttribs = false;
-	m_fszOS = false;
-	m_fszType = false;
-
-	return true;
 }

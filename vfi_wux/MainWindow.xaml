@@ -13,7 +13,7 @@
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <CommandBar Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" DefaultLabelPosition="Right">
@@ -35,11 +35,8 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <!--Path-->
                             <ColumnDefinition Width="Auto"/>
-                            <!--Name-->
                             <ColumnDefinition Width="Auto"/>
-                            <!--Ext-->
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>

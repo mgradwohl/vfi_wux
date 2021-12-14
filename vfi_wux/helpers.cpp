@@ -177,31 +177,6 @@ bool DoesFolderExist(LPCWSTR pszFolder)
 	return false;
 }
 
-//bool PathGetFolder(LPWSTR pszFileSpec)
-//{
-//
-//	if (NULL == pszFileSpec)
-//	{
-//		return false;
-//	}
-//
-//	PathRemoveFileSpec(pszFileSpec);
-//	return true;
-//}
-//
-//bool PathGetFileName(LPWSTR pszFileSpec)
-//{
-//
-//	if (NULL == pszFileSpec)
-//	{
-//		return false;
-//	}
-//
-//	pszFileSpec = PathFindFileName(pszFileSpec);
-//
-//	return true;
-//}
-
 // TODO all wstrings
 bool OpenBox(const HWND hWnd, LPCWSTR pszTitle, LPCWSTR pszFilter, std::wstring& strFile, int cchFile, LPCWSTR pszFolder, const DWORD dwFlags)
 {
@@ -233,7 +208,6 @@ bool OpenBox(const HWND hWnd, LPCWSTR pszTitle, LPCWSTR pszFilter, std::wstring&
 
 	if (!GetOpenFileNameW(&of))
 	{
-		const DWORD dwError = CommDlgExtendedError();
 		return false;
 	}
 

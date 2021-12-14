@@ -26,6 +26,8 @@
 #include "tcodepage.h"
 
 // file states
+// get rid of these and just use bools e.g. hasCRC, hasVersion etc.
+// this is just too many confusing states
 enum FileStates
 {
 	FWFS_VALID =		0x0000,	// constructed only
@@ -55,7 +57,6 @@ enum FileStates
 class CWiseFile
 {
 private:
-	bool Init();
 	// Member Variables
 	// Set when a file is added
 	std::wstring		_strFullPath;
@@ -64,6 +65,7 @@ private:
 	std::wstring		_strExt;
 
 	// Set when information requested, if not set
+	// todo std::string these
 	wchar_t		m_szAttribs[10];
 	wchar_t		m_szFlags[256];
 	wchar_t		m_szOS[64];
