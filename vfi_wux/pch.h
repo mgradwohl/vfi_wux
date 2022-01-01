@@ -15,6 +15,10 @@
 // conflict with Storyboard::GetCurrentTime
 #undef GetCurrentTime
 
+#include <winnt.h>
+#include <wil/cppwinrt.h>
+#include <wil/common.h>
+
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>

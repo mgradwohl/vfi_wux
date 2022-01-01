@@ -22,12 +22,11 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
+#include <winnt.h>
+#include <wil/cppwinrt.h>
 #include <wil/common.h>
 #include "tcodepage.h"
 
-class CWiseFile
-{
-public:
 	// file states
 	// get rid of these and just use bools e.g. hasCRC, hasVersion etc.
 	// this is just too many confusing states
@@ -45,6 +44,10 @@ public:
 		PendingDeletion = 0x0100,		// pending deletion from list
 	}; 
 	DEFINE_ENUM_FLAG_OPERATORS(FileState);
+
+class CWiseFile
+{
+public:
 
 private:
 	// Member Variables
@@ -120,7 +123,7 @@ public:
 
 	const std::wstring& GetFullPath()
 	{
-		if (WI_IsFlagSet(m_State, CWiseFile::FileState::Attached))
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_strFullPath;
 		}

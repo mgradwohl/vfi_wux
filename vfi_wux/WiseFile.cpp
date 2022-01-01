@@ -22,6 +22,9 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "pch.h"
+#include <winnt.h>
+#include <wil/cppwinrt.h>
+#include <wil/common.h>
 #include <Imagehlp.h>
 #include <format>
 #include "resource.h"
