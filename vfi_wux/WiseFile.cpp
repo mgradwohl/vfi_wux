@@ -234,10 +234,11 @@ bool CWiseFile::SetFileVersion()
 		return true;
 	}
 
-	WCHAR szDec[2];
+	wchar_t szDec[2];
 	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szDec, 2);
 
-	wsprintf(&m_szFileVersion[0], L"%d%s%02d%s%04d%s%04d",
+	// %d%s%02d%s%04d%s%04d
+	m_szFileVersion = std::format(L"{}{}{:02d}{}{:04d}{}{:04d}",
 		(int)HIWORD(HIDWORD(m_qwFileVersion)),
 		szDec,
 		(int)LOWORD(HIDWORD(m_qwFileVersion)),
@@ -246,15 +247,6 @@ bool CWiseFile::SetFileVersion()
 		szDec,
 		(int)LOWORD(LODWORD(m_qwFileVersion)));
 	
-	//wsprintf(m_szFileVersion, L"%d%s%02d%s%04d%s%04d",
-	//	(int)HIWORD(HIDWORD(m_qwFileVersion)),
-	//	szDec,
-	//	(int)LOWORD(HIDWORD(m_qwFileVersion)),
-	//	szDec,
-	//	(int)HIWORD(LODWORD(m_qwFileVersion)),
-	//	szDec,
-	//	(int)LOWORD(LODWORD(m_qwFileVersion)));
-
 	return true;
 }
 
@@ -263,6 +255,11 @@ bool CWiseFile::GetFileVersion(LPDWORD pdwMS, LPDWORD pdwLS)
 	if (!WI_IsFlagSet(m_State, FileState::Version))
 	{
 		return false;
+	}
+
+	if (!m_fHasVersion)
+	{
+		return true;
 	}
 
 	if (pdwMS)
@@ -279,6 +276,11 @@ bool CWiseFile::GetFileVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS,
 	if (!WI_IsFlagSet(m_State, FileState::Version))
 	{
 		return false;
+	}
+
+	if (!m_fHasVersion)
+	{
+		return true;
 	}
 
 	if (pwHighMS)
@@ -311,7 +313,7 @@ bool CWiseFile::SetProductVersion()
 	WCHAR szDec[2];
 	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szDec, 2);
 
-	wsprintf(&m_szProductVersion[0], L"%2d%s%02d%s%04d%s%04d",
+	m_szProductVersion = std::format(L"{}{}{:02d}{}{:04d}{}{:04d}",
 		(int)HIWORD(HIDWORD(m_qwProductVersion)),
 		szDec,
 		(int)LOWORD(HIDWORD(m_qwProductVersion)),
@@ -330,6 +332,11 @@ bool CWiseFile::GetProductVersion(LPDWORD pdwMS, LPDWORD pdwLS)
 		return false;
 	}
 
+	if (!m_fHasVersion)
+	{
+		return true;
+	}
+
 	if (pdwMS)
 		*pdwMS = HIDWORD(m_qwProductVersion);
 
@@ -344,6 +351,11 @@ bool CWiseFile::GetProductVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHigh
 	if (!WI_IsFlagSet(m_State, FileState::Version))
 	{
 		return false;
+	}
+
+	if (!m_fHasVersion)
+	{
+		return true;
 	}
 
 	if (pwHighMS)
@@ -371,10 +383,15 @@ bool CWiseFile::SetType()
 	if (!m_fHasVersion)
 		return true;
 
+	if (m_fszType)
+	{
+		return true;
+	}
+
 	m_szType.clear();
 	switch (m_dwType)
 	{
-		case VFT_UNKNOWN: m_szType = std::format(L"VFT_UNKNOWN: 0x%08x", m_dwType);
+		case VFT_UNKNOWN: m_szType = std::format(L"VFT_UNKNOWN: {:#010x}", m_dwType);
 			break;
 		case VFT_APP: m_szType = L"VFT_APP";
 			break;
@@ -388,7 +405,7 @@ bool CWiseFile::SetType()
 			break;
 		case VFT_STATIC_LIB: m_szType = L"VFT_STATIC_LIB";
 			break;
-		default: m_szType = std::format(L"Reserved: 0x%08x", m_dwType);
+		default: m_szType = std::format(L"Reserved: {:#010x}", m_dwType);
 	}
 	m_fszType = true;
 	return true;
@@ -404,9 +421,14 @@ bool CWiseFile::SetOS()
 	if (!m_fHasVersion)
 		return true;
 
+	if (m_fszOS)
+	{
+		return true;
+	}
+
 	switch (m_dwOS)
 	{
-	case VOS_UNKNOWN: m_szOS = std::format(L"VOS_UNKNOWN: 0x%08x", m_dwOS);
+	case VOS_UNKNOWN: m_szOS = std::format(L"VOS_UNKNOWN: {:#010x}", m_dwOS);
 			break;
 		case VOS_DOS: m_szOS = L"VOS_DOS";
 			break;
@@ -434,7 +456,7 @@ bool CWiseFile::SetOS()
 			break;
 		case VOS_NT_WINDOWS32: m_szOS = L"VOS_NT_WINDOWS32";
 			break;
-		default:		m_szOS = std::format(L"Reserved: 0x%08x", m_dwOS);
+		default:		m_szOS = std::format(L"Reserved: {:#010x}", m_dwOS);
 	}
 	m_fszOS = true;
 	return true;
@@ -481,7 +503,7 @@ bool CWiseFile::SetCodePage(bool bNumeric)
 
 	if (bNumeric)
 	{
-		m_szCodePage = std::format(L"%04x", (WORD)m_CodePage);
+		m_szCodePage = std::format(L"{:#06x}", (WORD)m_CodePage);
 		//wsprintf(m_szCodePage, L"%04x", (WORD)m_CodePage);
 	}
 	else
@@ -825,7 +847,7 @@ bool CWiseFile::SetAttribs()
 		return true;
 	}
 
-	m_szAttribs = std::format(L"%c%c%c%c%c%c%c%c",
+	m_szAttribs = std::format(L"{}{}{}{}{}{}{}{}",
 		((m_dwAttribs & FILE_ATTRIBUTE_ARCHIVE) ? 'A' : ' '),
 		((m_dwAttribs & FILE_ATTRIBUTE_HIDDEN) ? 'H' : ' '),
 		((m_dwAttribs & FILE_ATTRIBUTE_READONLY) ? 'R' : ' '),
@@ -907,14 +929,16 @@ bool CWiseFile::SetFlags()
 		m_szFlags += szSep;
 	}
 
-	const size_t sep = m_szFlags.find_last_of(szSep[0]);
-	m_szFlags.resize(sep);
-
+	if (!m_szFlags.empty())
+	{
+		const size_t sep = m_szFlags.find_last_of(szSep[0]);
+		m_szFlags.resize(sep);
+	}
 	// if we've looked at it, and we still don't have a string for it
 	// put a default one in (unless the flags are 00000000)
 	if ( (m_szFlags.length() < 3) && (m_dwFlags != 0))
 	{
-		m_szFlags = std::format(L" % 08x", m_dwFlags);
+		m_szFlags = std::format(L"{:010x}", m_dwFlags);
 	}
 
 	return true;

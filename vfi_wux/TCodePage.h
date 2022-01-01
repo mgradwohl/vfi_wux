@@ -51,7 +51,7 @@ public:
 			ZeroMemory(&m_mcp, sizeof(MIMECPINFO));
 			if (S_OK  == m_pML->GetCodePageInfo(CodePage, wLanguage, &m_mcp))
 			{
-				pszBuf = std::format(L"%s (%lu)", m_mcp.wszDescription, CodePage);
+				pszBuf = std::format(L"{} {})", m_mcp.wszDescription, CodePage);
 //				wsprintf( pszBuf, L"%s (%lu)", m_mcp.wszDescription, CodePage);
 				return true;
 			}
@@ -61,362 +61,362 @@ public:
 		ZeroMemory(&cp, sizeof(CPINFOEX));
 		if (GetCPInfoEx(CodePage, 0, &cp))
 		{
-			pszBuf = std::format(L"%s", cp.CodePageName);
+			pszBuf = std::format(L"{}", cp.CodePageName);
 			//wsprintf( pszBuf, L"%s", cp.CodePageName);
 			return true;
 		}
 		
 		switch (CodePage)
 		{
-			case	37:		pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - U.S./Canada");
+			case	37:		pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - U.S./Canada");
 			break;
 
-			case	709:	pszBuf = std::format(L"%lu %s",CodePage,L"Arabic (ASMO 449+, BCON V4)");
+			case	709:	pszBuf = std::format(L"{} {}",CodePage,L"Arabic (ASMO 449+, BCON V4)");
 			break;
 
-			case	710:	pszBuf = std::format(L"%lu %s",CodePage,L"Arabic (Transparent Arabic)");
+			case	710:	pszBuf = std::format(L"{} {}",CodePage,L"Arabic (Transparent Arabic)");
 			break;
 
-			case	437:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - United States");
+			case	437:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - United States");
 			break;
 
-			case	500:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - International");
+			case	500:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - International");
 			break;
 
-			case	708:	pszBuf = std::format(L"%lu %s",CodePage,L"Arabic - ASMO");
+			case	708:	pszBuf = std::format(L"{} {}",CodePage,L"Arabic - ASMO");
 			break;
 
-			case	720:	pszBuf = std::format(L"%lu %s",CodePage,L"Arabic - Transparent ASMO");
+			case	720:	pszBuf = std::format(L"{} {}",CodePage,L"Arabic - Transparent ASMO");
 			break;
 
-			case	737:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Greek 437G");
+			case	737:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Greek 437G");
 			break;
 
-			case	775:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Baltic");
+			case	775:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Baltic");
 			break;
 
-			case	850:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Multilingual Latin I");
+			case	850:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Multilingual Latin I");
 			break;
 
-			case	852:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Latin II");
+			case	852:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Latin II");
 			break;
 
-			case	855:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Cyrillic");
+			case	855:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Cyrillic");
 			break;
 
-			case	857:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Turkish");
+			case	857:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Turkish");
 			break;
 
-			case	860:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Portuguese");
+			case	860:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Portuguese");
 			break;
 
-			case	861:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Icelandic");
+			case	861:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Icelandic");
 			break;
 
-			case	862:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Hebrew");
+			case	862:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Hebrew");
 			break;
 
-			case	863:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Canadian French");
+			case	863:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Canadian French");
 			break;
 
-			case	864:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Arabic");
+			case	864:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Arabic");
 			break;
 
-			case	865:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Nordic");
+			case	865:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Nordic");
 			break;
 
-			case	866:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Russian");
+			case	866:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Russian");
 			break;
 
-			case	869:	pszBuf = std::format(L"%lu %s",CodePage,L"OEM - Modern Greek");
+			case	869:	pszBuf = std::format(L"{} {}",CodePage,L"OEM - Modern Greek");
 			break;
 
-			case	870:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Multilingual/ROECE (Latin-2)");
+			case	870:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Multilingual/ROECE (Latin-2)");
 			break;
 
-			case	874:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI/OEM - Thai");
+			case	874:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI/OEM - Thai");
 			break;
 
-			case	875:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Modern Greek");
+			case	875:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Modern Greek");
 			break;
 
-			case	932:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI/OEM - Japanese Shift-JIS");
+			case	932:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI/OEM - Japanese Shift-JIS");
 			break;
 
-			case	936:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI/OEM - Simplified Chinese GBK");
+			case	936:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI/OEM - Simplified Chinese GBK");
 			break;
 
-			case	949:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI/OEM - Korean");
+			case	949:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI/OEM - Korean");
 			break;
 
-			case	950:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI/OEM - Traditional Chinese Big5");
+			case	950:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI/OEM - Traditional Chinese Big5");
 			break;
 
-			case	1200:	pszBuf = std::format(L"%lu %s",CodePage,L"Unicode (BMP of ISO 10646)");
+			case	1200:	pszBuf = std::format(L"{} {}",CodePage,L"Unicode (BMP of ISO 10646)");
 			break;
 
-			case	1026:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Turkish (Latin-5)");
+			case	1026:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Turkish (Latin-5)");
 			break;
 
-			case	1250:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Central Europe");
+			case	1250:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Central Europe");
 			break;
 
-			case	1251:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Cyrillic");
+			case	1251:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Cyrillic");
 			break;
 
-			case	1252:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Latin I");
+			case	1252:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Latin I");
 			break;
 
-			case	1253:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Greek");
+			case	1253:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Greek");
 			break;
 
-			case	1254:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Turkish");
+			case	1254:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Turkish");
 			break;
 
-			case	1255:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Hebrew");
+			case	1255:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Hebrew");
 			break;
 
-			case	1256:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Arabic");
+			case	1256:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Arabic");
 			break;
 
-			case	1257:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI - Baltic");
+			case	1257:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI - Baltic");
 			break;
 
-			case	1258:	pszBuf = std::format(L"%lu %s",CodePage,L"ANSI/OEM - Viet Nam");
+			case	1258:	pszBuf = std::format(L"{} {}",CodePage,L"ANSI/OEM - Viet Nam");
 			break;
 
-			case	1361:	pszBuf = std::format(L"%lu %s",CodePage,L"Korean - Johab");
+			case	1361:	pszBuf = std::format(L"{} {}",CodePage,L"Korean - Johab");
 			break;
 
-			case	10000:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Roman");
+			case	10000:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Roman");
 			break;
 
-			case	10001:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Japanese");
+			case	10001:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Japanese");
 			break;
 
-			case	10002:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Traditional Chinese Big5");
+			case	10002:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Traditional Chinese Big5");
 			break;
 
-			case	10003:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Korean");
+			case	10003:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Korean");
 			break;
 
-			case	10004:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Arabic");
+			case	10004:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Arabic");
 			break;
 
-			case	10005:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Hebrew");
+			case	10005:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Hebrew");
 			break;
 
-			case	10006:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Greek I");
+			case	10006:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Greek I");
 			break;
 
-			case	10007:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Cyrillic");
+			case	10007:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Cyrillic");
 			break;
 
-			case	10008:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Simplified Chinese GB 2312");
+			case	10008:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Simplified Chinese GB 2312");
 			break;
 
-			case	10010:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Romania");
+			case	10010:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Romania");
 			break;
 
-			case	10017:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Ukraine");
+			case	10017:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Ukraine");
 			break;
 
-			case	10029:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Latin II");
+			case	10029:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Latin II");
 			break;
 
-			case	10079:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Icelandic");
+			case	10079:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Icelandic");
 			break;
 
-			case	10081:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Turkish");
+			case	10081:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Turkish");
 			break;
 
-			case	10082:	pszBuf = std::format(L"%lu %s",CodePage,L"MAC - Croatia");
+			case	10082:	pszBuf = std::format(L"{} {}",CodePage,L"MAC - Croatia");
 			break;
 
-			case	20866:	pszBuf = std::format(L"%lu %s",CodePage,L"Russian - KOI8");
+			case	20866:	pszBuf = std::format(L"{} {}",CodePage,L"Russian - KOI8");
 			break;
 
-			case	29001:	pszBuf = std::format(L"%lu %s",CodePage,L"Europa 3");
+			case	29001:	pszBuf = std::format(L"{} {}",CodePage,L"Europa 3");
 			break;
 
-			case	65000:	pszBuf = std::format(L"%lu %s",CodePage,L"UTF-7");
+			case	65000:	pszBuf = std::format(L"{} {}",CodePage,L"UTF-7");
 			break;
 
-			case	65001:	pszBuf = std::format(L"%lu %s",CodePage,L"UTF-8");
+			case	65001:	pszBuf = std::format(L"{} {}",CodePage,L"UTF-8");
 			break;
 
-			case	20000:	pszBuf = std::format(L"%lu %s",CodePage,L"CNS - Taiwan");
+			case	20000:	pszBuf = std::format(L"{} {}",CodePage,L"CNS - Taiwan");
 			break;
 
-			case	20001:	pszBuf = std::format(L"%lu %s",CodePage,L"TCA - Taiwan");
+			case	20001:	pszBuf = std::format(L"{} {}",CodePage,L"TCA - Taiwan");
 			break;
 
-			case	20002:	pszBuf = std::format(L"%lu %s",CodePage,L"Eten - Taiwan");
+			case	20002:	pszBuf = std::format(L"{} {}",CodePage,L"Eten - Taiwan");
 			break;
 
-			case	20003:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM5550 - Taiwan");
+			case	20003:	pszBuf = std::format(L"{} {}",CodePage,L"IBM5550 - Taiwan");
 			break;
 
-			case	20004:	pszBuf = std::format(L"%lu %s",CodePage,L"TeleText - Taiwan");
+			case	20004:	pszBuf = std::format(L"{} {}",CodePage,L"TeleText - Taiwan");
 			break;
 
-			case	20005:	pszBuf = std::format(L"%lu %s",CodePage,L"Wang - Taiwan");
+			case	20005:	pszBuf = std::format(L"{} {}",CodePage,L"Wang - Taiwan");
 			break;
 
-			case	20105:	pszBuf = std::format(L"%lu %s",CodePage,L"IA5 IRV International Alphabet No. 5");
+			case	20105:	pszBuf = std::format(L"{} {}",CodePage,L"IA5 IRV International Alphabet No. 5");
 			break;
 
-			case	20106:	pszBuf = std::format(L"%lu %s",CodePage,L"IA5 German");
+			case	20106:	pszBuf = std::format(L"{} {}",CodePage,L"IA5 German");
 			break;
 
-			case	20107:	pszBuf = std::format(L"%lu %s",CodePage,L"IA5 Swedish");
+			case	20107:	pszBuf = std::format(L"{} {}",CodePage,L"IA5 Swedish");
 			break;
 
-			case	20108:	pszBuf = std::format(L"%lu %s",CodePage,L"IA5 Norwegian");
+			case	20108:	pszBuf = std::format(L"{} {}",CodePage,L"IA5 Norwegian");
 			break;
 
-			case	20127:	pszBuf = std::format(L"%lu %s",CodePage,L"US-ASCII");
+			case	20127:	pszBuf = std::format(L"{} {}",CodePage,L"US-ASCII");
 			break;
 
-			case	20261:	pszBuf = std::format(L"%lu %s",CodePage,L"T.61");
+			case	20261:	pszBuf = std::format(L"{} {}",CodePage,L"T.61");
 			break;
 
-			case	20269:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 6937 Non-Spacing Accent");
+			case	20269:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 6937 Non-Spacing Accent");
 			break;
 
-			case	20273:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Germany");
+			case	20273:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Germany");
 			break;
 
-			case	20277:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Denmark/Norway");
+			case	20277:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Denmark/Norway");
 			break;
 
-			case	20278:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Finland/Sweden");
+			case	20278:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Finland/Sweden");
 			break;
 
-			case	20280:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Italy");
+			case	20280:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Italy");
 			break;
 
-			case	20284:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Latin America/Spain");
+			case	20284:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Latin America/Spain");
 			break;
 
-			case	20285:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - United Kingdom");
+			case	20285:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - United Kingdom");
 			break;
 
-			case	20290:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Japanese Katakana Extended");
+			case	20290:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Japanese Katakana Extended");
 			break;
 
-			case	20297:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - France");
+			case	20297:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - France");
 			break;
 
-			case	20420:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Arabic");
+			case	20420:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Arabic");
 			break;
 
-			case	20423:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Greek");
+			case	20423:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Greek");
 			break;
 
-			case	20424:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Hebrew");
+			case	20424:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Hebrew");
 			break;
 
-			case	20833:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Korean Extended");
+			case	20833:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Korean Extended");
 			break;
 
-			case	20838:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Thai");
+			case	20838:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Thai");
 			break;
 
-			case	20871:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Icelandic");
+			case	20871:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Icelandic");
 			break;
 
-			case	20880:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Cyrillic,(Russian)");
+			case	20880:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Cyrillic,(Russian)");
 			break;
 
-			case	20905:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Turkish");
+			case	20905:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Turkish");
 			break;
 
-			case	21025:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Cyrillic (Serbian, Bulgarian)");
+			case	21025:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Cyrillic (Serbian, Bulgarian)");
 			break;
 
-			case	21027:	pszBuf = std::format(L"%lu %s",CodePage,L"Ext Alpha Lowercase");
+			case	21027:	pszBuf = std::format(L"{} {}",CodePage,L"Ext Alpha Lowercase");
 			break;
 
-			case	28591:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-1 Latin I");
+			case	28591:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-1 Latin I");
 			break;
 
-			case	28592:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-2 Central Europe");
+			case	28592:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-2 Central Europe");
 			break;
 
-			case	28593:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-3 Turkish");
+			case	28593:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-3 Turkish");
 			break;
 
-			case	28594:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-4 Baltic");
+			case	28594:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-4 Baltic");
 			break;
 
-			case	28595:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-5 Cyrillic");
+			case	28595:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-5 Cyrillic");
 			break;
 
-			case	28596:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-6 Arabic");
+			case	28596:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-6 Arabic");
 			break;
 
-			case	28597:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-7 Greek");
+			case	28597:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-7 Greek");
 			break;
 
-			case	28598:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-8 Hebrew");
+			case	28598:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-8 Hebrew");
 			break;
 
-			case	28599:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO 8859-9 Latin 5");
+			case	28599:	pszBuf = std::format(L"{} {}",CodePage,L"ISO 8859-9 Latin 5");
 			break;
 
-			case	50220:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO-2022 Japanese with no halfwidth Katakana");
+			case	50220:	pszBuf = std::format(L"{} {}",CodePage,L"ISO-2022 Japanese with no halfwidth Katakana");
 			break;
 
-			case	50221:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO-2022 Japanese with halfwidth Katakana");
+			case	50221:	pszBuf = std::format(L"{} {}",CodePage,L"ISO-2022 Japanese with halfwidth Katakana");
 			break;
 
-			case	50222:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO-2022 Japanese JIS X 0201-1989");
+			case	50222:	pszBuf = std::format(L"{} {}",CodePage,L"ISO-2022 Japanese JIS X 0201-1989");
 			break;
 
-			case	50225:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO-2022 Korean");
+			case	50225:	pszBuf = std::format(L"{} {}",CodePage,L"ISO-2022 Korean");
 			break;
 
-			case	50227:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO-2022 Simplified Chinese");
+			case	50227:	pszBuf = std::format(L"{} {}",CodePage,L"ISO-2022 Simplified Chinese");
 			break;
 
-			case	50229:	pszBuf = std::format(L"%lu %s",CodePage,L"ISO-2022 Traditional Chinese");
+			case	50229:	pszBuf = std::format(L"{} {}",CodePage,L"ISO-2022 Traditional Chinese");
 			break;
 
-			case	52936:	pszBuf = std::format(L"%lu %s",CodePage,L"HZ-GB2312 Simplified Chinese");
+			case	52936:	pszBuf = std::format(L"{} {}",CodePage,L"HZ-GB2312 Simplified Chinese");
 			break;
 
-			case	51932:	pszBuf = std::format(L"%lu %s",CodePage,L"EUC-Japanese");
+			case	51932:	pszBuf = std::format(L"{} {}",CodePage,L"EUC-Japanese");
 			break;
 
-			case	51949:	pszBuf = std::format(L"%lu %s",CodePage,L"EUC-Korean");
+			case	51949:	pszBuf = std::format(L"{} {}",CodePage,L"EUC-Korean");
 			break;
 
-			case	51936:	pszBuf = std::format(L"%lu %s",CodePage,L"EUC-Simplified Chinese");
+			case	51936:	pszBuf = std::format(L"{} {}",CodePage,L"EUC-Simplified Chinese");
 			break;
 
-			case	51950:	pszBuf = std::format(L"%lu %s",CodePage,L"EUC-Traditional Chinese");
+			case	51950:	pszBuf = std::format(L"{} {}",CodePage,L"EUC-Traditional Chinese");
 			break;
 
-			case	50930:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Japanese (Katakana) Extended and Japanese");
+			case	50930:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Japanese (Katakana) Extended and Japanese");
 			break;
 
-			case	50931:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - US/Canada and Japanese");
+			case	50931:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - US/Canada and Japanese");
 			break;
 
-			case	50933:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Korean Extended and Korean");
+			case	50933:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Korean Extended and Korean");
 			break;
 
-			case	50935:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Simplified Chinese");
+			case	50935:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Simplified Chinese");
 			break;
 
-			case	50937:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - US/Canada and Traditional Chinese");
+			case	50937:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - US/Canada and Traditional Chinese");
 			break;
 
-			case	50939:	pszBuf = std::format(L"%lu %s",CodePage,L"IBM EBCDIC - Japanese (Latin) Extended and Japanese");
+			case	50939:	pszBuf = std::format(L"{} {}",CodePage,L"IBM EBCDIC - Japanese (Latin) Extended and Japanese");
 			break;
 
-			default:	pszBuf = std::format(L"%lu Unknown", CodePage);
+			default:	pszBuf = std::format(L"Unknown {} ", CodePage);
 			break;
 		}
 

@@ -149,7 +149,7 @@ public:
 		return L"\0";
 	}
 
-	const std::wstring GetExt()
+	const std::wstring& GetExt()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
@@ -158,7 +158,7 @@ public:
 		return L"\0";
 	}
 
-	const std::wstring GetSize()
+	const std::wstring& GetSize()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Size))
 		{
@@ -185,7 +185,7 @@ public:
 
 	const std::wstring& GetOS()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Version))
+		if (WI_IsFlagSet(m_State, FileState::Version) && m_fszOS)
 		{
 			return m_szOS;
 		}
@@ -195,7 +195,7 @@ public:
 
 	const std::wstring& GetType()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Attached))
+		if (WI_IsFlagSet(m_State, FileState::Attached) && m_fszType)
 		{
 			return m_szType;
 		}
@@ -259,7 +259,7 @@ public:
 
 	const std::wstring& GetAttribs()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Attached))
+		if (WI_IsFlagSet(m_State, FileState::Attached) && m_fszAttribs)
 		{
 			return m_szAttribs;
 		}
@@ -317,7 +317,7 @@ public:
 
 	const std::wstring& GetFlags()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Version))
+		if (WI_IsFlagSet(m_State, FileState::Version) && m_fszFlags)
 		{
 			return m_szFlags;
 		}
