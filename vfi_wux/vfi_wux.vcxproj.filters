@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="..\..\fmt\build\fmt.vcxproj" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="vfi_wux.rc" />
