@@ -38,10 +38,11 @@
 		Size			= 0x0004,		// size information is valid
 		Version			= 0x0008,		// version information is read
 		Language		= 0x0010,		// language information is read
-		CRC_Working		= 0x0020,		// working on CRC
-		CRC_Complete	= 0x0040,		// CRC complete
-		CRC_Error		= 0x0080,		// error generating CRC
-		PendingDeletion = 0x0100,		// pending deletion from list
+		CRC_Pending		= 0x0020,
+		CRC_Working		= 0x0040,		// working on CRC
+		CRC_Complete	= 0x0080,		// CRC complete
+		CRC_Error		= 0x0100,		// error generating CRC
+		PendingDeletion = 0x0200,		// pending deletion from list
 	}; 
 	DEFINE_ENUM_FLAG_OPERATORS(FileState);
 
@@ -113,13 +114,13 @@ public:
 	~CWiseFile();
 
 	// initialization, release
-	int Attach(std::wstring strFileSpec);
-	int Detach();
+	bool Attach(std::wstring strFileSpec);
+	bool Detach();
 
 	// handlers for listview
 	const std::wstring& GetFieldString(int iField, bool fOptions);
 
-	int ReadVersionInfoEx();
+	bool ReadVersionInfoEx();
 
 	const std::wstring& GetFullPath()
 	{
@@ -132,7 +133,7 @@ public:
 
 	const std::wstring& GetPath()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_strPath;
 		}
@@ -141,7 +142,7 @@ public:
 
 	const std::wstring& GetName()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_strName;
 		}
@@ -150,8 +151,8 @@ public:
 
 	const std::wstring GetExt()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
-		{	
+		if (WI_IsFlagSet(m_State, FileState::Attached))
+		{
 			return m_strExt;
 		}
 		return L"\0";
@@ -159,7 +160,7 @@ public:
 
 	const std::wstring GetSize()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_SIZE)
+		if (WI_IsFlagSet(m_State, FileState::Size))
 		{
 			return m_szSize;
 		}
@@ -174,34 +175,37 @@ public:
 
 	const std::wstring& GetCRC()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_CRC_COMPLETE)
+		if (WI_IsFlagSet(m_State, FileState::CRC_Complete))
 		{
-			SetCRC(true);
+			return m_szCRC;
 		}
+		SetCRC(true);
 		return m_szCRC;
 	}
 
 	const std::wstring& GetOS()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_VERSION)
+		if (WI_IsFlagSet(m_State, FileState::Version))
 		{
-			SetOS();
+			return m_szOS;
 		}
+		SetOS();
 		return m_szOS;
 	}
 
 	const std::wstring& GetType()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_VERSION)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			SetType();
+			return m_szType;
 		}
+		SetType();
 		return m_szType;
 	}
 
 	const std::wstring& GetDateLastAccess()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szDateLastAccess;
 		}
@@ -210,7 +214,7 @@ public:
 
 	const std::wstring& GetTimeLastAccess()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szTimeLastAccess;
 		}
@@ -219,7 +223,7 @@ public:
 
 	const std::wstring& GetDateCreated()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szDateCreated;
 		}
@@ -228,7 +232,7 @@ public:
 
 	const std::wstring& GetTimeCreated()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szTimeCreated;
 		}
@@ -237,7 +241,7 @@ public:
 
 	const std::wstring& GetDateLastWrite()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szDateLastWrite;
 		}
@@ -246,7 +250,7 @@ public:
 
 	const std::wstring& GetTimeLastWrite()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szTimeLastWrite;
 		}
@@ -255,7 +259,7 @@ public:
 
 	const std::wstring& GetAttribs()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szAttribs;
 		}
@@ -265,35 +269,35 @@ public:
 
 	const std::wstring& GetFileVersion()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_VERSION)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
 			return m_szFileVersion;
 		}
 
-		if (FWF_SUCCESS == SetProductVersion() && FWF_SUCCESS == SetFileVersion())
+		if (SetProductVersion() && SetFileVersion())
 		{
-			m_State = CWiseFile::FileState::FWFS_VERSION/* || CWiseFile::FileState::FWFS_ATTACHED*/;
+			WI_SetFlag(m_State, FileState::Version);
 		}
 		return m_szFileVersion;
 	}
 
 	const std::wstring& GetProductVersion()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_VERSION)
+		if (WI_IsFlagSet(m_State, FileState::Version))
 		{
 			return m_szProductVersion;
 		}
 
-		if (FWF_SUCCESS == SetProductVersion() && FWF_SUCCESS == SetFileVersion())
+		if (SetProductVersion() && SetFileVersion())
 		{
-			m_State = CWiseFile::FileState::FWFS_VERSION/* || CWiseFile::FileState::FWFS_ATTACHED*/;
+			WI_SetFlag(m_State, FileState::Version);
 		}
 		return m_szProductVersion;
 	}
 
 	const std::wstring& GetLanguage()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_LANGUAGE)
+		if (WI_IsFlagSet(m_State, FileState::Language))
 		{
 			return m_szLanguage;
 		}
@@ -303,7 +307,7 @@ public:
 
 	const std::wstring& GetCodePage()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_VERSION)
+		if (WI_IsFlagSet(m_State, FileState::Language))
 		{
 			return m_szCodePage;
 		}
@@ -313,7 +317,7 @@ public:
 
 	const std::wstring& GetFlags()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_VERSION)
+		if (WI_IsFlagSet(m_State, FileState::Version))
 		{
 			return m_szFlags;
 		}
@@ -321,50 +325,40 @@ public:
 		return m_szFlags;
 	}
 
-	int SetSize(bool bHex = false);
-	int SetAttribs();
+	bool SetSize(bool bHex = false);
+	bool SetAttribs();
 
-	int SetDateCreation(bool fLocal = true);
-	int SetDateLastAccess(bool fLocal = true);
-	int SetDateLastWrite(bool fLocal = true);
+	bool SetDateCreation(bool fLocal = true);
+	bool SetDateLastAccess(bool fLocal = true);
+	bool SetDateLastWrite(bool fLocal = true);
 
-	int SetTimeCreation(bool fLocal = true);
-	int SetTimeLastAccess(bool fLocal = true);
-	int SetTimeLastWrite(bool fLocal = true);
+	bool SetTimeCreation(bool fLocal = true);
+	bool SetTimeLastAccess(bool fLocal = true);
+	bool SetTimeLastWrite(bool fLocal = true);
 
-	int SetFileVersion();
-	int GetFileVersion(LPDWORD pdwHigh, LPDWORD pdwLow);
-	int GetFileVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS);
+	bool SetFileVersion();
+	bool GetFileVersion(LPDWORD pdwHigh, LPDWORD pdwLow);
+	bool GetFileVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS);
 
-	int SetProductVersion();
-	int GetProductVersion(LPDWORD pdwMS, LPDWORD pdwLS);
-	int GetProductVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS);
+	bool SetProductVersion();
+	bool GetProductVersion(LPDWORD pdwMS, LPDWORD pdwLS);
+	bool GetProductVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS);
 
 	bool SetLanguage(UINT Language);
-	int SetCodePage(bool bNumeric = false);
+	bool SetCodePage(bool bNumeric = false);
 
-	void SetOS();
-	void SetType();
-	int SetFlags();
+	bool SetOS();
+	bool SetType();
+	bool SetFlags();
 
-	int SetCRC(bool bHex = true);
+	bool SetCRC(bool bHex = true);
 
-	void SetState(FileState State)
-	{
-		m_State = State;
-	}
-
-	FileState GetState()
-	{
-		return m_State;
-	}
-
-	int TouchFileTime(FILETIME* lpTime);
+	bool TouchFileTime(FILETIME* lpTime);
 
 	void _SetCRC(DWORD dwCRC)
 	{
 		m_dwCRC = dwCRC;
 	}
 	// execute helpers
-	int ReadVersionInfo();
+	bool  ReadVersionInfo();
 };

@@ -60,7 +60,7 @@ CWiseFile::CWiseFile()
 	m_dwType = 0;
 	m_dwFlags = 0;
 	m_dwCRC = 0;
-
+	m_State = FileState::Valid;
 	m_fDebugStripped = false;
 	m_fHasVersion = false;
 	m_fszFlags = false;
@@ -73,15 +73,15 @@ CWiseFile::CWiseFile()
 CWiseFile::CWiseFile(std::wstring strFileSpec) : CWiseFile()
 {
 	Attach(strFileSpec);
-	m_State = CWiseFile::FileState::FWFS_CRC_PENDING;
+	WI_SetFlag(m_State, FileState::CRC_Working);
 }
 
 CWiseFile::~CWiseFile()
 {
-	m_State = CWiseFile::FileState::FWFS_INVALID;
+	m_State = FileState::Invalid;
 }
 
-int CWiseFile::Attach(std::wstring strFileSpec)
+bool CWiseFile::Attach(std::wstring strFileSpec)
 {
 	// TODO check to see if it's a weird path
 	//if (0 == StrCmpN(pszFileSpec, L"\\\\?\\", 4))
@@ -95,14 +95,14 @@ int CWiseFile::Attach(std::wstring strFileSpec)
 	if (INVALID_HANDLE_VALUE == hff)
 	{
 		//FindClose(hff);
-		return FWF_ERR_BADPARAM;
+		return false;
 	}
 
 	m_dwAttribs = fd.dwFileAttributes;
 	if (m_dwAttribs & FILE_ATTRIBUTE_DIRECTORY)
 	{
 		FindClose(hff);
-		return FWF_ERR_FOLDER;
+		return false;
 	}
 
 	m_qwSize = GetFileSize64(strFileSpec.c_str());
@@ -120,26 +120,20 @@ int CWiseFile::Attach(std::wstring strFileSpec)
 	::FileTimeToLocalFileTime(&(fd.ftLastWriteTime), &ft);
 	::FileTimeToSystemTime(&ft, &m_stLocalLastWrite);
 
-	WCHAR szDrive[_MAX_DRIVE];
-	WCHAR szDir[_MAX_DIR];
-	WCHAR szName[_MAX_PATH];
-	WCHAR szExt[_MAX_PATH];
+	wchar_t szDrive[_MAX_DRIVE];
+	wchar_t szDir[_MAX_DIR];
+	wchar_t szName[_MAX_PATH];
+	wchar_t szExt[_MAX_PATH];
 
 	LPWSTR pszDot;
 	_wsplitpath_s(strFileSpec.c_str(), szDrive, _MAX_DRIVE, szDir, _MAX_DIR, szName, _MAX_PATH, szExt, _MAX_PATH);
 
-	//wcscpy_s(_strFullPath, pszFileSpec);
 	m_strFullPath = strFileSpec;
-
-	//wcscpy_s(_strszPath, szDrive);
 	m_strPath.assign(szDrive);
-	//wcscat_s(_strszPath, szDir);
 	m_strPath.append(szDir);
-
 	m_strName.assign(szName);
 
 	pszDot = CharNext(szExt);
-	//wcscpy_s(_strExt, pszDot);
 	m_strExt.assign(pszDot);
 
 	SetDateCreation();
@@ -156,102 +150,88 @@ int CWiseFile::Attach(std::wstring strFileSpec)
 	//}
 	//FindClose(hff);
 
-	SetState(CWiseFile::FileState::FWFS_ATTACHED);
+	WI_SetFlag(m_State, FileState::Attached);
 
-	//SetDateCreation();
-	//SetTimeCreation();
-	//SetDateLastWrite();
-	//SetTimeLastWrite();
-	//SetDateLastAccess();
-	//SetTimeLastAccess();
-
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::Detach()
+bool CWiseFile::Detach()
 {
 	// does nothing
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::SetSize(bool bHex)
+bool CWiseFile::SetSize(bool bHex)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	if (bHex)
 	{
-		return FWF_SUCCESS;
+		return true;
 	}
 	else
 	{
 		// Not using StrFormatByteSize because it wordifies everything
 		if (int2str(m_szSize, m_qwSize))
 		{
-			m_State = CWiseFile::FileState::FWFS_SIZE/* || CWiseFile::FileState::FWFS_ATTACHED*/;
-			return FWF_SUCCESS;
+			WI_SetFlag(m_State, FileState::Size);
+			return true;
 		}
 		else
 		{
-			return FWF_ERR_OTHER;
+			return false;
 		}
 	}
 }
 
-int CWiseFile::SetCRC(bool bHex)
+bool CWiseFile::SetCRC(bool bHex)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
-	{
-		return FWF_ERR_INVALID;
-	}
-
-	if (m_State == CWiseFile::FileState::FWFS_CRC_COMPLETE)
+	if (WI_IsFlagSet(m_State, FileState::CRC_Complete))
 	{
 		if (bHex)
 		{
 			m_szCRC = std::format(L"{:#08x}", m_dwCRC);
-			//wsprintf(&m_szCRC[0], L"%08x", m_dwCRC);
 		}
 		else
 		{
 			int2str(m_szCRC, m_dwCRC);
 		}
-		return FWF_SUCCESS;
+		return true;
 	}
 
-	if (m_State == CWiseFile::FileState::FWFS_CRC_ERROR)
-	{
-		LoadStringResource(STR_CRC_ERROR, m_szCRC);
-		return FWF_SUCCESS;
-	}
-
-	if (m_State == CWiseFile::FileState::FWFS_CRC_PENDING)
+	if (WI_IsFlagSet(m_State, FileState::CRC_Pending))
 	{
 		LoadStringResource(STR_CRC_PENDING, m_szCRC);
-		return FWF_SUCCESS;
+		return true;
 	}
 
-	if (m_State != CWiseFile::FileState::FWFS_CRC_WORKING)
+	if (WI_IsFlagSet(m_State, FileState::CRC_Working))
 	{
 		LoadStringResource(STR_CRC_WORKING, m_szCRC);
-		return FWF_SUCCESS;
+		return true;
 	}
 
-	return FWF_ERR_OTHER;
+	if (WI_IsFlagSet(m_State, FileState::CRC_Error))
+	{
+		LoadStringResource(STR_CRC_ERROR, m_szCRC);
+		return true;
+	}
+	return false;
 }
 
-int CWiseFile::SetFileVersion()
+bool CWiseFile::SetFileVersion()
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	if (!m_fHasVersion)
 	{
-		return FWF_SUCCESS;
+		return true;
 	}
 
 	WCHAR szDec[2];
@@ -275,13 +255,15 @@ int CWiseFile::SetFileVersion()
 	//	szDec,
 	//	(int)LOWORD(LODWORD(m_qwFileVersion)));
 
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::GetFileVersion(LPDWORD pdwMS, LPDWORD pdwLS)
+bool CWiseFile::GetFileVersion(LPDWORD pdwMS, LPDWORD pdwLS)
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
-		return FWF_ERR_INVALID;
+	if (!WI_IsFlagSet(m_State, FileState::Version))
+	{
+		return false;
+	}
 
 	if (pdwMS)
 		*pdwMS = HIDWORD(m_qwFileVersion);
@@ -289,13 +271,15 @@ int CWiseFile::GetFileVersion(LPDWORD pdwMS, LPDWORD pdwLS)
 	if (pdwLS)
 		*pdwLS = LODWORD(m_qwFileVersion);
 
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::GetFileVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS)
+bool CWiseFile::GetFileVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS)
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
-		return FWF_ERR_INVALID;
+	if (!WI_IsFlagSet(m_State, FileState::Version))
+	{
+		return false;
+	}
 
 	if (pwHighMS)
 		*pwHighMS = HIWORD(HIDWORD(m_qwFileVersion));
@@ -309,19 +293,19 @@ int CWiseFile::GetFileVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, 
 	if (pwLowLS)
 		*pwLowLS = LOWORD(LODWORD(m_qwFileVersion));
 
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::SetProductVersion()
+bool CWiseFile::SetProductVersion()
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
+	if (!WI_IsFlagSet(m_State, FileState::Version))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	if (!m_fHasVersion)
 	{
-		return FWF_SUCCESS;
+		return true;
 	}
 
 	WCHAR szDec[2];
@@ -335,13 +319,16 @@ int CWiseFile::SetProductVersion()
 		(int)HIWORD(LODWORD(m_qwProductVersion)),
 		szDec,
 		(int)LOWORD(LODWORD(m_qwProductVersion)));
-	return FWF_SUCCESS;
+
+	return true;
 }
 
-int CWiseFile::GetProductVersion(LPDWORD pdwMS, LPDWORD pdwLS)
+bool CWiseFile::GetProductVersion(LPDWORD pdwMS, LPDWORD pdwLS)
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
-		return FWF_ERR_INVALID;
+	if (!WI_IsFlagSet(m_State, FileState::Version))
+	{
+		return false;
+	}
 
 	if (pdwMS)
 		*pdwMS = HIDWORD(m_qwProductVersion);
@@ -349,13 +336,15 @@ int CWiseFile::GetProductVersion(LPDWORD pdwMS, LPDWORD pdwLS)
 	if (pdwLS)
 		*pdwLS = LODWORD(m_qwProductVersion);
 
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::GetProductVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS)
+bool CWiseFile::GetProductVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS)
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
-		return FWF_ERR_INVALID;
+	if (!WI_IsFlagSet(m_State, FileState::Version))
+	{
+		return false;
+	}
 
 	if (pwHighMS)
 		*pwHighMS = HIWORD(HIDWORD(m_qwProductVersion));
@@ -369,82 +358,86 @@ int CWiseFile::GetProductVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighL
 	if (pwLowLS)
 		*pwLowLS = LOWORD(LODWORD(m_qwProductVersion));
 
-	return FWF_SUCCESS;
+	return true;
 }
 
-void CWiseFile::SetType()
+bool CWiseFile::SetType()
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
-		return;
+	if (!WI_IsFlagSet(m_State, FileState::Version))
+	{
+		return false;
+	}
 
 	if (!m_fHasVersion)
-		return;
+		return true;
 
+	m_szType.clear();
 	switch (m_dwType)
 	{
-	case VFT_UNKNOWN: wsprintf(&m_szType[0], L"VFT_UNKNOWN: 0x%08x", m_dwType);
-		break;
-	case VFT_APP: m_szType += L"VFT_APP";
-		break;
-	case VFT_DLL: m_szType += L"VFT_DLL";
-		break;
-	case VFT_DRV: m_szType += L"VFT_DRV";
-		break;
-	case VFT_FONT: m_szType += L"VFT_FONT";
-		break;
-	case VFT_VXD: m_szType += L"VFT_VXD";
-		break;
-	case VFT_STATIC_LIB: m_szType += L"VFT_STATIC_LIB";
-		break;
-	default:
-	{
-		wsprintf(&m_szType[0], L"Reserved: 0x%08x", m_dwType);
-	}
+		case VFT_UNKNOWN: m_szType = std::format(L"VFT_UNKNOWN: 0x%08x", m_dwType);
+			break;
+		case VFT_APP: m_szType = L"VFT_APP";
+			break;
+		case VFT_DLL: m_szType = L"VFT_DLL";
+			break;
+		case VFT_DRV: m_szType = L"VFT_DRV";
+			break;
+		case VFT_FONT: m_szType = L"VFT_FONT";
+			break;
+		case VFT_VXD: m_szType = L"VFT_VXD";
+			break;
+		case VFT_STATIC_LIB: m_szType = L"VFT_STATIC_LIB";
+			break;
+		default: m_szType = std::format(L"Reserved: 0x%08x", m_dwType);
 	}
 	m_fszType = true;
+	return true;
 }
 
-void CWiseFile::SetOS()
+bool CWiseFile::SetOS()
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
-		return;
+	if (!WI_IsFlagSet(m_State, FileState::Version))
+	{
+		return false;
+	}
 
 	if (!m_fHasVersion)
-		return;
+		return true;
 
 	switch (m_dwOS)
 	{
 	case VOS_UNKNOWN: m_szOS = std::format(L"VOS_UNKNOWN: 0x%08x", m_dwOS);
 			break;
-		case VOS_DOS: m_szOS.assign(L"VOS_DOS");
+		case VOS_DOS: m_szOS = L"VOS_DOS";
 			break;
-		case VOS_OS216: m_szOS.assign(L"VOS_OS216");
+		case VOS_OS216: m_szOS = L"VOS_OS216";
 			break;
-		case VOS_OS232: m_szOS.assign(L"VOS_OS232");
+		case VOS_OS232: m_szOS = L"VOS_OS232";
 			break;
-		case VOS_NT: m_szOS.assign(L"VOS_NT");
+		case VOS_NT: m_szOS = L"VOS_NT";
 			break;
-		case VOS__WINDOWS16: m_szOS.assign(L"VOS__WINDOWS16");
+		case VOS__WINDOWS16: m_szOS = L"VOS__WINDOWS16";
 			break;
-		case VOS__PM16: m_szOS.assign(L"VOS__PM16");
+		case VOS__PM16: m_szOS = L"VOS__PM16";
 			break;
-		case VOS__PM32: m_szOS.assign(L"VOS__PM32");
+		case VOS__PM32: m_szOS = L"VOS__PM32";
 			break;
-		case VOS__WINDOWS32: m_szOS.assign(L"VOS__WINDOWS32");
+		case VOS__WINDOWS32: m_szOS = L"VOS__WINDOWS32";
 			break;
-		case VOS_OS216_PM16: m_szOS.assign(L"VOS_OS216_PM16");
+		case VOS_OS216_PM16: m_szOS = L"VOS_OS216_PM16";
 			break;
-		case VOS_OS232_PM32: m_szOS.assign(L"VOS_OS232_PM32");
+		case VOS_OS232_PM32: m_szOS = L"VOS_OS232_PM32";
 			break;
-		case VOS_DOS_WINDOWS16: m_szOS.assign( L"VOS_DOS_WINDOWS16");
+		case VOS_DOS_WINDOWS16: m_szOS =  L"VOS_DOS_WINDOWS16";
 			break;
-		case VOS_DOS_WINDOWS32: m_szOS.assign(L"VOS_DOS_WINDOWS32");
+		case VOS_DOS_WINDOWS32: m_szOS = L"VOS_DOS_WINDOWS32";
 			break;
-		case VOS_NT_WINDOWS32: m_szOS.assign(L"VOS_NT_WINDOWS32");
+		case VOS_NT_WINDOWS32: m_szOS = L"VOS_NT_WINDOWS32";
 			break;
 		default:		m_szOS = std::format(L"Reserved: 0x%08x", m_dwOS);
 	}
 	m_fszOS = true;
+	return true;
 }
 
 //int CWiseFile::GetOSString(LPWSTR pszText)
@@ -474,16 +467,16 @@ void CWiseFile::SetOS()
 //	return FWF_SUCCESS;
 //}
 
-int CWiseFile::SetCodePage(bool bNumeric)
+bool CWiseFile::SetCodePage(bool bNumeric)
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
+	if (!WI_IsFlagSet(m_State, FileState::Version))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	if (!m_fHasVersion)
 	{
-		return FWF_SUCCESS;
+		return true;
 	}
 
 	if (bNumeric)
@@ -495,10 +488,10 @@ int CWiseFile::SetCodePage(bool bNumeric)
 	{
 		m_CodePage.GetCodePageName(LANGIDFROMLCID(GetThreadLocale()), m_CodePage, m_szCodePage);
 	}
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::ReadVersionInfo()
+bool CWiseFile::ReadVersionInfo()
 {
 	char szPath[_MAX_PATH];
 	WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, m_strFullPath.c_str(), _MAX_PATH, szPath, _MAX_PATH, nullptr, nullptr);
@@ -527,14 +520,14 @@ int CWiseFile::ReadVersionInfo()
 	dwVerSize = ::GetFileVersionInfoSize(m_strFullPath.c_str(), &dwVerHandle);
 
 	if (dwVerSize < 1)
-		return FWF_ERR_NOVERSION;
+		return false;
 
 	lpVerBuffer = (LPVOID) new BYTE[dwVerSize];
 
 	if (NULL == lpVerBuffer)
 	{
 		delete[] lpVerBuffer;
-		return FWF_ERR_LOWMEMORY;
+		return false;
 	}
 
 	ZeroMemory(lpVerBuffer, dwVerSize);
@@ -544,13 +537,13 @@ int CWiseFile::ReadVersionInfo()
 	if (!::GetFileVersionInfo(m_strFullPath.c_str(), dwVerHandle, dwVerSize, lpVerBuffer))
 	{
 		delete[] lpVerBuffer;
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	if (!::VerQueryValue(lpVerBuffer, L"\\", &lpVerData, &cbVerData))
 	{
 		delete[] lpVerBuffer;
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	m_fHasVersion = true;
@@ -565,23 +558,23 @@ int CWiseFile::ReadVersionInfo()
 	if (!VerQueryValue(lpVerBuffer, L"\\VarFileInfo\\Translation", &lpVerData, &cbVerData))
 	{
 		delete[] lpVerBuffer;
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	m_wLanguage = LOWORD(*(LPDWORD)lpVerData);
 	m_CodePage = HIWORD(*(LPDWORD)lpVerData);
 	delete[] lpVerBuffer;
 
-	m_State = CWiseFile::FileState::FWFS_VERSION;
+	WI_SetFlag(m_State, FileState::Version);
 
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::SetDateCreation(bool fLocal)
+bool CWiseFile::SetDateCreation(bool fLocal)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	SYSTEMTIME* pst = nullptr;
@@ -597,20 +590,20 @@ int CWiseFile::SetDateCreation(bool fLocal)
 	wchar_t szDate[200];
 	if (0 == ::GetDateFormat(::GetThreadLocale(), DATE_SHORTDATE, pst, NULL, szDate, 64))
 	{
-		return FWF_ERR_OTHER;
+		return false;
 	}
 	else
 	{
-		m_szDateCreated.assign(szDate);
-		return FWF_SUCCESS;
+		m_szDateCreated = szDate;
+		return true;
 	}
 }
 
-int CWiseFile::SetDateLastAccess(bool fLocal)
+bool CWiseFile::SetDateLastAccess(bool fLocal)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	SYSTEMTIME* pst = nullptr;
@@ -626,20 +619,20 @@ int CWiseFile::SetDateLastAccess(bool fLocal)
 	wchar_t szDate[200];
 	if (0 == ::GetDateFormat(::GetThreadLocale(), DATE_SHORTDATE, pst, NULL, szDate, 64))
 	{
-		return FWF_ERR_OTHER;
+		return false;
 	}
 	else
 	{
-		m_szDateLastAccess.assign(szDate);
-		return FWF_SUCCESS;
+		m_szDateLastAccess = szDate;
+		return true;
 	}
 }
 
-int CWiseFile::SetDateLastWrite(bool fLocal)
+bool CWiseFile::SetDateLastWrite(bool fLocal)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	SYSTEMTIME* pst = nullptr;
@@ -655,20 +648,20 @@ int CWiseFile::SetDateLastWrite(bool fLocal)
 	wchar_t szDate[200];
 	if (0 == ::GetDateFormat(::GetThreadLocale(), DATE_SHORTDATE, pst, NULL, szDate, 64))
 	{
-		return FWF_ERR_OTHER;
+		return false;
 	}
 	else
 	{
-		m_szDateLastWrite.assign(szDate);
-		return FWF_SUCCESS;
+		m_szDateLastWrite = szDate;
+		return true;
 	}
 }
 
-int CWiseFile::SetTimeCreation(bool fLocal)
+bool CWiseFile::SetTimeCreation(bool fLocal)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	SYSTEMTIME* pst = nullptr;
@@ -684,20 +677,20 @@ int CWiseFile::SetTimeCreation(bool fLocal)
 	wchar_t szTime[200];
 	if (0 == ::GetTimeFormat(::GetThreadLocale(), TIME_NOSECONDS, pst, NULL, szTime, 64))
 	{
-		return FWF_ERR_OTHER;
+		return false;
 	}
 	else
 	{
-		m_szTimeCreated.assign(szTime);
-		return FWF_SUCCESS;
+		m_szTimeCreated = szTime;
+		return true;
 	}
 }
 
-int CWiseFile::SetTimeLastAccess(bool fLocal)
+bool CWiseFile::SetTimeLastAccess(bool fLocal)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	SYSTEMTIME* pst = nullptr;
@@ -713,20 +706,20 @@ int CWiseFile::SetTimeLastAccess(bool fLocal)
 	wchar_t szTime[200];
 	if (0 == ::GetTimeFormat(::GetThreadLocale(), TIME_NOSECONDS, pst, NULL, szTime, 64))
 	{
-		return FWF_ERR_OTHER;
+		return false;
 	}
 	else
 	{
-		m_szTimeLastAccess.assign(szTime);
-		return FWF_SUCCESS;
+		m_szTimeLastAccess = szTime;
+		return true;
 	}
 }
 
-int CWiseFile::SetTimeLastWrite(bool fLocal)
+bool CWiseFile::SetTimeLastWrite(bool fLocal)
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	SYSTEMTIME* pst = nullptr;
@@ -742,30 +735,32 @@ int CWiseFile::SetTimeLastWrite(bool fLocal)
 	wchar_t szTime[200];
 	if (0 == ::GetTimeFormat(::GetThreadLocale(), TIME_NOSECONDS, pst, NULL, szTime, 64))
 	{
-		return FWF_ERR_OTHER;
+		return false;
 
 	}
 	else
 	{
-		m_szTimeLastWrite.assign(szTime);
-		return FWF_SUCCESS;
+		m_szTimeLastWrite = szTime;
+		return true;
 	}
 }
 
-int CWiseFile::TouchFileTime(FILETIME* lpTime)
+bool CWiseFile::TouchFileTime(FILETIME* lpTime)
 {
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
+	{
+		return false;
+	}
+
+	if (!lpTime)
+		return false;
+
 	LPCWSTR pszPath = m_strFullPath.c_str();
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
-		return FWF_ERR_INVALID;
-
-	if (NULL == lpTime)
-		return FWF_ERR_BADPARAM;
-
 	const DWORD dwOldAttribs = ::GetFileAttributes(pszPath);
 	if (false == ::SetFileAttributes(pszPath, FILE_ATTRIBUTE_NORMAL))
 	{
 		::SetFileAttributes(pszPath, dwOldAttribs);
-		return FWF_ERR_OTHER;
+		return false;
 	}
 
 	HANDLE hFile = ::CreateFile(pszPath,
@@ -780,14 +775,14 @@ int CWiseFile::TouchFileTime(FILETIME* lpTime)
 	{
 		::SetFileAttributes(pszPath, dwOldAttribs);
 		::CloseHandle(hFile);
-		return FWF_ERR_OTHER;
+		return false;
 	}
 
 	if (false == ::SetFileTime(hFile, lpTime, lpTime, lpTime))
 	{
 		::SetFileAttributes(pszPath, dwOldAttribs);
 		::CloseHandle(hFile);
-		return FWF_ERR_OTHER;
+		return false;
 	}
 
 	::SetFileAttributes(pszPath, dwOldAttribs);
@@ -809,25 +804,25 @@ int CWiseFile::TouchFileTime(FILETIME* lpTime)
 	return true;
 }
 
-int CWiseFile::SetAttribs()
+bool CWiseFile::SetAttribs()
 {
-	if (m_State != CWiseFile::FileState::FWFS_ATTACHED)
+	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		m_szAttribs.assign(L"        ");
-		return FWF_ERR_INVALID;
+		m_szAttribs = L"        ";
+		return false;
 	}
 
 	if (m_fszAttribs)
 	{
-		// the string is already built, return it
-		return FWF_SUCCESS;
+		// the string is already built, bail out
+		return true;
 	}
 	m_fszAttribs = true;
 
 	if (m_dwAttribs & FILE_ATTRIBUTE_NORMAL)
 	{
-		m_szAttribs.assign(L"        ");
-		return FWF_SUCCESS;
+		m_szAttribs = L"        ";
+		return true;
 	}
 
 	m_szAttribs = std::format(L"%c%c%c%c%c%c%c%c",
@@ -840,31 +835,31 @@ int CWiseFile::SetAttribs()
 		((m_dwAttribs & FILE_ATTRIBUTE_TEMPORARY) ? 'T' : ' '),
 		((m_dwAttribs & FILE_ATTRIBUTE_OFFLINE) ? 'O' : ' '));
 
-	return FWF_SUCCESS;
+	return true;
 }
 
-int CWiseFile::SetFlags()
+bool CWiseFile::SetFlags()
 {
-	if (m_State != CWiseFile::FileState::FWFS_VERSION)
+	if (!WI_IsFlagSet(m_State, FileState::Version))
 	{
-		return FWF_ERR_INVALID;
+		return false;
 	}
 
 	if (!m_fHasVersion)
 	{
-		return FWF_SUCCESS;
+		return true;
 	}
 
 	if (m_fszFlags)
 	{
-		return FWF_SUCCESS;
+		return true;
 	}
 	m_fszFlags = true;
 
 	// list seperator
 	wchar_t szSep[10];
 	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SLIST, szSep, 2);
-	wcscat_s(szSep, L" \0");
+	wcscpy_s(szSep, L" \0");
 
 	std::wstring szStr;
 	if (m_dwFlags & VS_FF_DEBUG)
@@ -922,27 +917,27 @@ int CWiseFile::SetFlags()
 		m_szFlags = std::format(L" % 08x", m_dwFlags);
 	}
 
-	return FWF_SUCCESS;
+	return true;
 }
 
 bool CWiseFile::SetLanguage(UINT Language)
 {
 	wchar_t szTemp[255];
 
-	if (0 == Language)
+	if (!Language)
 	{
 		VerLanguageName(Language, szTemp, 255);
 		m_szLanguage = std::format(L"%lu %s", Language, szTemp);
-		m_State = CWiseFile::FileState::FWFS_LANGUAGE;
+		WI_SetFlag(m_State, FileState::Language);
 		return true;
 	}
 
-	if (0 == GetLocaleInfo(Language, LOCALE_SLANGUAGE, szTemp, 255))
+	if (!GetLocaleInfo(Language, LOCALE_SLANGUAGE, szTemp, 255))
 	{
 		VerLanguageName(Language, szTemp, 255);
 	}
 	m_szLanguage = std::format(L"%lu %s", Language, szTemp);
-	m_State = CWiseFile::FileState::FWFS_LANGUAGE;
+	WI_SetFlag(m_State, FileState::Language);
 	return true;
 }
 
@@ -974,26 +969,26 @@ const std::wstring& CWiseFile::GetFieldString(int iField, bool fOptions)
 	return L"Unknown";
 }
 
-int CWiseFile::ReadVersionInfoEx()
+bool CWiseFile::ReadVersionInfoEx()
 {
 	HINSTANCE h = ::LoadLibraryEx(m_strFullPath.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
 	if (NULL == h)
 	{
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	HRSRC hrsrc = ::FindResource(h, MAKEINTRESOURCE(1), RT_VERSION);
 	if (NULL == hrsrc)
 	{
 		FreeLibrary(h);
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	UINT cb = ::SizeofResource(h, hrsrc);
 	if (0 == cb)
 	{
 		FreeLibrary(h);
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	const UINT xcb = ::GetFileVersionInfoSize(m_strFullPath.c_str(), 0);
@@ -1002,14 +997,14 @@ int CWiseFile::ReadVersionInfoEx()
 	if (hglobal == NULL)
 	{
 		FreeLibrary(h);
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	LPBYTE pb = static_cast<BYTE*>(::LockResource(hglobal));
 	if (NULL == pb)
 	{
 		FreeLibrary(h);
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	VS_FIXEDFILEINFO* pvi = new VS_FIXEDFILEINFO;
@@ -1023,13 +1018,13 @@ int CWiseFile::ReadVersionInfoEx()
 	// next line causes access violation
 	if (!::VerQueryValue(pb, L"\\", (void**)&pvi, &cb))
 	{
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	if (pvi->dwSignature != 0xFEEF04BD)
 	{
 		FreeLibrary(h);
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	m_qwFileVersion = MAKEQWORD(pvi->dwFileVersionLS, pvi->dwFileVersionMS);
@@ -1042,12 +1037,12 @@ int CWiseFile::ReadVersionInfoEx()
 	UINT cbVerData = 0;
 	if (!::VerQueryValue(pVerBuffer, L"\\VarFileInfo\\Translation", &pVerData, &cbVerData))
 	{
-		return FWF_ERR_NOVERSION;
+		return false;
 	}
 
 	m_wLanguage = LOWORD(*(LPDWORD)pVerBuffer);
 	m_CodePage = HIWORD(*(LPDWORD)pVerBuffer);
 
 	FreeLibrary(h);
-	return FWF_SUCCESS;
+	return true;
 }
