@@ -22,19 +22,8 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
-
+#include <wil/common.h>
 #include "tcodepage.h"
-
-#define	FWF_SUCCESS				0
-#define	FWF_ERR_NONE			0
-#define	FWF_ERR_INVALID			-1;
-#define FWF_ERR_BADPARAM		-2;
-#define FWF_ERR_FOLDER			-3;
-#define FWF_ERR_WILDCARD		-4;
-#define FWF_ERR_SPECIALPATH		-5;
-#define FWF_ERR_NOVERSION		-6
-#define FWF_ERR_LOWMEMORY		-7;
-#define FWF_ERR_OTHER			-64;
 
 class CWiseFile
 {
@@ -44,18 +33,18 @@ public:
 	// this is just too many confusing states
 	enum class FileState
 	{
-		FWFS_INVALID = 0x0000,	// invalid state
-		FWFS_VALID = 0x0001,	// constructed only
-		FWFS_ATTACHED = 0x0002,	// attached to a file
-		FWFS_VERSION = 0x0004,	// version information
-		FWFS_CRC_PENDING = 0x0008,	// unused
-		FWFS_CRC_WORKING = 0x0010,	// working on CRC
-		FWFS_CRC_COMPLETE = 0x0020,	// CRC complete
-		FWFS_CRC_ERROR = 0x0040,	// error generating CRC
-		FWFS_SIZE = 0x0080,
-		FWFS_DELETE = 0x0100,	// pending deletion
-		FWFS_LANGUAGE = 0x0200
+		Invalid			= 0x0000,		// invalid state
+		Valid			= 0x0001,		// constructed only
+		Attached		= 0x0002,		// attached to a file successfully
+		Size			= 0x0004,		// size information is valid
+		Version			= 0x0008,		// version information is read
+		Language		= 0x0010,		// language information is read
+		CRC_Working		= 0x0020,		// working on CRC
+		CRC_Complete	= 0x0040,		// CRC complete
+		CRC_Error		= 0x0080,		// error generating CRC
+		PendingDeletion = 0x0100,		// pending deletion from list
 	}; 
+	DEFINE_ENUM_FLAG_OPERATORS(FileState);
 
 private:
 	// Member Variables
@@ -131,7 +120,7 @@ public:
 
 	const std::wstring& GetFullPath()
 	{
-		if (m_State == CWiseFile::FileState::FWFS_ATTACHED)
+		if (WI_IsFlagSet(m_State, CWiseFile::FileState::Attached))
 		{
 			return m_strFullPath;
 		}
