@@ -6,7 +6,7 @@
 
 #include "helpers.h"
 
-bool LoadWstring(UINT id, std::wstring& strDest)
+bool LoadStringResource(UINT id, std::wstring& strDest)
 {
 	LPWSTR pszBuffer = nullptr;
 	strDest.clear();
@@ -20,58 +20,28 @@ bool LoadWstring(UINT id, std::wstring& strDest)
 	return true;
 }
 
-bool LoadWstring(UINT id, LPWSTR pszDest, int cchMax)
-{
-	const size_t length = ::LoadString(GetModuleHandle(nullptr), id, pszDest, cchMax);
-	if (length == 0)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 // Get number as a string
-bool int2wstr(std::wstring& strDest, QWORD i)
+bool int2str(std::wstring& strDest, QWORD i)
 {
 	// get the separator
 	std::wstring strDec;
 	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, &strDec[0], 2);
 
+	wchar_t pBuffer[200];
 	std::wstring strBuffer = strDest;
 	// TODO where did these numbers come from
 	strBuffer.resize(68);
 	_ui64tow_s(i, &strBuffer[0], 67, 10);
 
-	if (0 == GetNumberFormat(LOCALE_USER_DEFAULT, 0, strBuffer.c_str(), nullptr,  &strDest[0], 65))
+	int length = GetNumberFormatW(LOCALE_USER_DEFAULT, 0, strBuffer.c_str(), nullptr, pBuffer, 65);
+	if (length == 0)
 		return false;
 
+	strDest.assign(pBuffer, length);
 	const size_t decimal = strDest.find_last_of(strDec[0]);
 	strDest.resize(decimal);
 
 	return true;
-}
-
-bool int2str(LPWSTR pszDest, QWORD i)
-{
-	if (NULL == pszDest)
-	{
-		return false;
-	}
-
-	WCHAR szIn[67];
-	WCHAR szOut[67];
-	WCHAR szDec[2];
-
-	_ui64tow_s(i, szIn, 67, 10);
-
-	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, (LPWSTR)szDec, 2);
-	if (0 == GetNumberFormat(LOCALE_USER_DEFAULT, 0, (LPWSTR)szIn, NULL, (LPWSTR)szOut, 65))
-		return false;
-
-	LPWSTR pszDec = wcsrchr((LPWSTR)szOut, szDec[0]);
-	*pszDec = '\0';
-	return (lstrcpy(pszDest, (LPWSTR)szOut) != nullptr);
 }
 
 bool pipe2null(std::wstring& strSource)
@@ -89,23 +59,23 @@ bool MyGetUserName(std::wstring& strUserName)
 {
 	DWORD dwLen = MAX_USERNAME;
 
-	if (!GetUserName(&strUserName[0], &dwLen))
+	wchar_t pBuffer[MAX_USERNAME];
+
+	if (!GetUserName(pBuffer, &dwLen))
 	{
 		return false;
 	}
 
 	// todo use shrink_to_fit
-	strUserName.resize(wcslen(strUserName.c_str()));
+	strUserName.assign(pBuffer, dwLen);
+//	strUserName.resize(wcslen(strUserName.c_str()));
 	return true;
 }
 
 //TODO all wstring
-uint64_t GetFileSize64(LPCWSTR pszFileSpec)
+uint64_t GetFileSize64(const std::wstring& pszFileSpec)
 {
-	if (pszFileSpec == nullptr)
-		return 0;
-
-	HANDLE hFile = CreateFile(pszFileSpec,
+	HANDLE hFile = CreateFile(pszFileSpec.c_str(),
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -128,26 +98,20 @@ uint64_t GetFileSize64(LPCWSTR pszFileSpec)
 	return qwSize.QuadPart;
 }
 
-bool GetModuleFolder(HINSTANCE hInst, LPWSTR pszFolder)
+bool GetModuleFolder(HINSTANCE hInst, std::wstring& pszFolder)
 {
-	if (NULL == pszFolder)
-	{
-		return false;
-	}
+	wchar_t pBuffer[_MAX_PATH];
+	::GetModuleFileName(hInst, pBuffer, _MAX_PATH);
+	::PathRemoveFileSpec(pBuffer);
 
-	::GetModuleFileName(hInst, pszFolder, _MAX_PATH);
+	pszFolder.assign(pBuffer);
 
-	::PathRemoveFileSpec(pszFolder);
 	return true;
 }
-bool DoesFileExist(LPCWSTR pszFileName)
-{
-	if (NULL == pszFileName)
-	{
-		return false;
-	}
 
-	DWORD const dw = ::GetFileAttributes(pszFileName);
+bool DoesFileExist(const std::wstring& pszFileName)
+{
+	DWORD const dw = ::GetFileAttributes(pszFileName.c_str());
 	if (dw == (DWORD)-1 || dw & FILE_ATTRIBUTE_DIRECTORY || dw & FILE_ATTRIBUTE_OFFLINE)
 	{
 		return false;
@@ -156,14 +120,9 @@ bool DoesFileExist(LPCWSTR pszFileName)
 	return true;
 }
 
-bool DoesFolderExist(LPCWSTR pszFolder)
+bool DoesFolderExist(const std::wstring& pszFolder)
 {
-	if (NULL == pszFolder)
-	{
-		return false;
-	}
-
-	DWORD const dw = ::GetFileAttributes(pszFolder);
+	DWORD const dw = ::GetFileAttributes(pszFolder.c_str());
 	if (dw == (DWORD)-1 || dw & FILE_ATTRIBUTE_OFFLINE)
 	{
 		return false;
@@ -178,13 +137,13 @@ bool DoesFolderExist(LPCWSTR pszFolder)
 }
 
 // TODO all wstrings
-bool OpenBox(const HWND hWnd, LPCWSTR pszTitle, LPCWSTR pszFilter, std::wstring& strFile, int cchFile, LPCWSTR pszFolder, const DWORD dwFlags)
+bool OpenBox(const HWND hWnd, const std::wstring& pszTitle, const std::wstring& pszFilter, std::wstring& strFile, int cchFile, const std::wstring& pszFolder, const DWORD dwFlags)
 {
 	OPENFILENAME of;
 	::ZeroMemory(&of, sizeof(OPENFILENAME));
 
 	LPWSTR wszPath;
-	if (NULL == pszFolder)
+	if (pszFolder.empty())
 	{
 		SHGetKnownFolderPath(FOLDERID_Desktop, KF_FLAG_DEFAULT, NULL, &wszPath);
 		std::wstring strPath(wszPath);
@@ -193,17 +152,18 @@ bool OpenBox(const HWND hWnd, LPCWSTR pszTitle, LPCWSTR pszFilter, std::wstring&
 	}
 	else
 	{
-		of.lpstrInitialDir = pszFolder;
+		of.lpstrInitialDir = pszFolder.c_str();
 	}
+
 	strFile.clear();
 	strFile.resize(maxExtendedPathLength);
 	of.lStructSize = sizeof(OPENFILENAME);
 	of.hwndOwner = hWnd;
 	of.hInstance = GetModuleHandle(NULL);
-	of.lpstrFilter = pszFilter;
+	of.lpstrFilter = pszFilter.c_str();
 	of.lpstrFile = strFile.data();
 	of.nMaxFile = cchFile;
-	of.lpstrTitle = pszTitle;
+	of.lpstrTitle = pszTitle.c_str();
 	of.Flags = dwFlags | OFN_DONTADDTORECENT | OFN_LONGNAMES | OFN_ENABLESIZING | OFN_EXPLORER | OFN_NONETWORKBUTTON;
 
 	if (!GetOpenFileNameW(&of))

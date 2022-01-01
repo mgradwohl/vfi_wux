@@ -33,6 +33,6 @@ namespace winrt::vfi_wux::implementation
 void winrt::vfi_wux::implementation::MainWindow::AppBarButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
     MyList thelist;
-    auto p = std::shared_ptr<CWiseFile>(new CWiseFile(L"c:\\windows\\system32\\wwahost.exe"));
+    auto p = std::make_shared<CWiseFile>(L"c:\\windows\\system32\\wwahost.exe");
     thelist.AddHead(p);
 }
