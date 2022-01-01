@@ -59,22 +59,22 @@ private:
 	std::wstring		m_strExt;
 
 	// Set when information requested, if not set
-	std::wstring		m_szAttribs;
-	std::wstring		m_szFlags;
-	std::wstring		m_szOS;
-	std::wstring		m_szType;
-	std::wstring		m_szSize;
-	std::wstring		m_szDateCreated;
-	std::wstring		m_szTimeCreated;
-	std::wstring		m_szDateLastAccess;
-	std::wstring		m_szTimeLastAccess;
-	std::wstring		m_szDateLastWrite;
-	std::wstring		m_szTimeLastWrite;
-	std::wstring		m_szLanguage;
-	std::wstring		m_szCodePage;
-	std::wstring		m_szCRC;
-	std::wstring		m_szFileVersion;
-	std::wstring		m_szProductVersion;
+	std::wstring		m_strAttribs;
+	std::wstring		m_strFlags;
+	std::wstring		m_strOS;
+	std::wstring		m_strType;
+	std::wstring		m_strSize;
+	std::wstring		m_strDateCreated;
+	std::wstring		m_strTimeCreated;
+	std::wstring		m_strDateLastAccess;
+	std::wstring		m_strTimeLastAccess;
+	std::wstring		m_strDateLastWrite;
+	std::wstring		m_strTimeLastWrite;
+	std::wstring		m_strLanguage;
+	std::wstring		m_strCodePage;
+	std::wstring		m_strCRC;
+	std::wstring		m_strFileVersion;
+	std::wstring		m_strProductVersion;
 
 	// from WIN32_FIND_DATA
 	DWORD		m_dwAttribs;
@@ -162,10 +162,10 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::Size))
 		{
-			return m_szSize;
+			return m_strSize;
 		}
 		SetSize(false);
-		return m_szSize;
+		return m_strSize;
 	}
 
 	uint64_t Size()
@@ -177,37 +177,37 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::CRC_Complete))
 		{
-			return m_szCRC;
+			return m_strCRC;
 		}
 		SetCRC(true);
-		return m_szCRC;
+		return m_strCRC;
 	}
 
 	const std::wstring& GetOS()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Version) && m_fszOS)
 		{
-			return m_szOS;
+			return m_strOS;
 		}
 		SetOS();
-		return m_szOS;
+		return m_strOS;
 	}
 
 	const std::wstring& GetType()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached) && m_fszType)
 		{
-			return m_szType;
+			return m_strType;
 		}
 		SetType();
-		return m_szType;
+		return m_strType;
 	}
 
 	const std::wstring& GetDateLastAccess()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szDateLastAccess;
+			return m_strDateLastAccess;
 		}
 		return L"\0";
 	}
@@ -216,7 +216,7 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szTimeLastAccess;
+			return m_strTimeLastAccess;
 		}
 		return L"\0";
 	}
@@ -225,7 +225,7 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szDateCreated;
+			return m_strDateCreated;
 		}
 		return L"\0";
 	}
@@ -234,7 +234,7 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szTimeCreated;
+			return m_strTimeCreated;
 		}
 		return L"\0";
 	}
@@ -243,7 +243,7 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szDateLastWrite;
+			return m_strDateLastWrite;
 		}
 		return L"\0";
 	}
@@ -252,7 +252,7 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szTimeLastWrite;
+			return m_strTimeLastWrite;
 		}
 		return L"\0";
 	}
@@ -261,68 +261,68 @@ public:
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached) && m_fszAttribs)
 		{
-			return m_szAttribs;
+			return m_strAttribs;
 		}
 		SetAttribs();
-		return m_szAttribs;
+		return m_strAttribs;
 	}
 
 	const std::wstring& GetFileVersion()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szFileVersion;
+			return m_strFileVersion;
 		}
 
 		if (SetProductVersion() && SetFileVersion())
 		{
 			WI_SetFlag(m_State, FileState::Version);
 		}
-		return m_szFileVersion;
+		return m_strFileVersion;
 	}
 
 	const std::wstring& GetProductVersion()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Version))
 		{
-			return m_szProductVersion;
+			return m_strProductVersion;
 		}
 
 		if (SetProductVersion() && SetFileVersion())
 		{
 			WI_SetFlag(m_State, FileState::Version);
 		}
-		return m_szProductVersion;
+		return m_strProductVersion;
 	}
 
 	const std::wstring& GetLanguage()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Language))
 		{
-			return m_szLanguage;
+			return m_strLanguage;
 		}
 		SetLanguage(m_wLanguage);
-		return m_szLanguage;
+		return m_strLanguage;
 	}
 
 	const std::wstring& GetCodePage()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Language))
 		{
-			return m_szCodePage;
+			return m_strCodePage;
 		}
 		SetCodePage(m_CodePage);
-		return m_szCodePage;
+		return m_strCodePage;
 	}
 
 	const std::wstring& GetFlags()
 	{
 		if (WI_IsFlagSet(m_State, FileState::Version) && m_fszFlags)
 		{
-			return m_szFlags;
+			return m_strFlags;
 		}
 		SetFlags();
-		return m_szFlags;
+		return m_strFlags;
 	}
 
 	bool SetSize(bool bHex = false);

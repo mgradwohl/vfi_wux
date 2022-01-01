@@ -175,7 +175,7 @@ bool CWiseFile::SetSize(bool bHex)
 	else
 	{
 		// Not using StrFormatByteSize because it wordifies everything
-		if (int2str(m_szSize, m_qwSize))
+		if (int2str(m_strSize, m_qwSize))
 		{
 			WI_SetFlag(m_State, FileState::Size);
 			return true;
@@ -193,30 +193,30 @@ bool CWiseFile::SetCRC(bool bHex)
 	{
 		if (bHex)
 		{
-			m_szCRC = std::format(L"{:#08x}", m_dwCRC);
+			m_strCRC = std::format(L"{:#08x}", m_dwCRC);
 		}
 		else
 		{
-			int2str(m_szCRC, m_dwCRC);
+			int2str(m_strCRC, m_dwCRC);
 		}
 		return true;
 	}
 
 	if (WI_IsFlagSet(m_State, FileState::CRC_Pending))
 	{
-		LoadStringResource(STR_CRC_PENDING, m_szCRC);
+		LoadStringResource(STR_CRC_PENDING, m_strCRC);
 		return true;
 	}
 
 	if (WI_IsFlagSet(m_State, FileState::CRC_Working))
 	{
-		LoadStringResource(STR_CRC_WORKING, m_szCRC);
+		LoadStringResource(STR_CRC_WORKING, m_strCRC);
 		return true;
 	}
 
 	if (WI_IsFlagSet(m_State, FileState::CRC_Error))
 	{
-		LoadStringResource(STR_CRC_ERROR, m_szCRC);
+		LoadStringResource(STR_CRC_ERROR, m_strCRC);
 		return true;
 	}
 	return false;
@@ -238,7 +238,7 @@ bool CWiseFile::SetFileVersion()
 	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szDec, 2);
 
 	// %d%s%02d%s%04d%s%04d
-	m_szFileVersion = std::format(L"{}{}{:02d}{}{:04d}{}{:04d}",
+	m_strFileVersion = std::format(L"{}{}{:02d}{}{:04d}{}{:04d}",
 		(int)HIWORD(HIDWORD(m_qwFileVersion)),
 		szDec,
 		(int)LOWORD(HIDWORD(m_qwFileVersion)),
@@ -313,7 +313,7 @@ bool CWiseFile::SetProductVersion()
 	WCHAR szDec[2];
 	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szDec, 2);
 
-	m_szProductVersion = std::format(L"{}{}{:02d}{}{:04d}{}{:04d}",
+	m_strProductVersion = std::format(L"{}{}{:02d}{}{:04d}{}{:04d}",
 		(int)HIWORD(HIDWORD(m_qwProductVersion)),
 		szDec,
 		(int)LOWORD(HIDWORD(m_qwProductVersion)),
@@ -388,24 +388,24 @@ bool CWiseFile::SetType()
 		return true;
 	}
 
-	m_szType.clear();
+	m_strType.clear();
 	switch (m_dwType)
 	{
-		case VFT_UNKNOWN: m_szType = std::format(L"VFT_UNKNOWN: {:#010x}", m_dwType);
+		case VFT_UNKNOWN: m_strType = std::format(L"VFT_UNKNOWN: {:#010x}", m_dwType);
 			break;
-		case VFT_APP: m_szType = L"VFT_APP";
+		case VFT_APP: m_strType = L"VFT_APP";
 			break;
-		case VFT_DLL: m_szType = L"VFT_DLL";
+		case VFT_DLL: m_strType = L"VFT_DLL";
 			break;
-		case VFT_DRV: m_szType = L"VFT_DRV";
+		case VFT_DRV: m_strType = L"VFT_DRV";
 			break;
-		case VFT_FONT: m_szType = L"VFT_FONT";
+		case VFT_FONT: m_strType = L"VFT_FONT";
 			break;
-		case VFT_VXD: m_szType = L"VFT_VXD";
+		case VFT_VXD: m_strType = L"VFT_VXD";
 			break;
-		case VFT_STATIC_LIB: m_szType = L"VFT_STATIC_LIB";
+		case VFT_STATIC_LIB: m_strType = L"VFT_STATIC_LIB";
 			break;
-		default: m_szType = std::format(L"Reserved: {:#010x}", m_dwType);
+		default: m_strType = std::format(L"Reserved: {:#010x}", m_dwType);
 	}
 	m_fszType = true;
 	return true;
@@ -428,35 +428,35 @@ bool CWiseFile::SetOS()
 
 	switch (m_dwOS)
 	{
-	case VOS_UNKNOWN: m_szOS = std::format(L"VOS_UNKNOWN: {:#010x}", m_dwOS);
+	case VOS_UNKNOWN: m_strOS = std::format(L"VOS_UNKNOWN: {:#010x}", m_dwOS);
 			break;
-		case VOS_DOS: m_szOS = L"VOS_DOS";
+		case VOS_DOS: m_strOS = L"VOS_DOS";
 			break;
-		case VOS_OS216: m_szOS = L"VOS_OS216";
+		case VOS_OS216: m_strOS = L"VOS_OS216";
 			break;
-		case VOS_OS232: m_szOS = L"VOS_OS232";
+		case VOS_OS232: m_strOS = L"VOS_OS232";
 			break;
-		case VOS_NT: m_szOS = L"VOS_NT";
+		case VOS_NT: m_strOS = L"VOS_NT";
 			break;
-		case VOS__WINDOWS16: m_szOS = L"VOS__WINDOWS16";
+		case VOS__WINDOWS16: m_strOS = L"VOS__WINDOWS16";
 			break;
-		case VOS__PM16: m_szOS = L"VOS__PM16";
+		case VOS__PM16: m_strOS = L"VOS__PM16";
 			break;
-		case VOS__PM32: m_szOS = L"VOS__PM32";
+		case VOS__PM32: m_strOS = L"VOS__PM32";
 			break;
-		case VOS__WINDOWS32: m_szOS = L"VOS__WINDOWS32";
+		case VOS__WINDOWS32: m_strOS = L"VOS__WINDOWS32";
 			break;
-		case VOS_OS216_PM16: m_szOS = L"VOS_OS216_PM16";
+		case VOS_OS216_PM16: m_strOS = L"VOS_OS216_PM16";
 			break;
-		case VOS_OS232_PM32: m_szOS = L"VOS_OS232_PM32";
+		case VOS_OS232_PM32: m_strOS = L"VOS_OS232_PM32";
 			break;
-		case VOS_DOS_WINDOWS16: m_szOS =  L"VOS_DOS_WINDOWS16";
+		case VOS_DOS_WINDOWS16: m_strOS =  L"VOS_DOS_WINDOWS16";
 			break;
-		case VOS_DOS_WINDOWS32: m_szOS = L"VOS_DOS_WINDOWS32";
+		case VOS_DOS_WINDOWS32: m_strOS = L"VOS_DOS_WINDOWS32";
 			break;
-		case VOS_NT_WINDOWS32: m_szOS = L"VOS_NT_WINDOWS32";
+		case VOS_NT_WINDOWS32: m_strOS = L"VOS_NT_WINDOWS32";
 			break;
-		default:		m_szOS = std::format(L"Reserved: {:#010x}", m_dwOS);
+		default:		m_strOS = std::format(L"Reserved: {:#010x}", m_dwOS);
 	}
 	m_fszOS = true;
 	return true;
@@ -503,12 +503,12 @@ bool CWiseFile::SetCodePage(bool bNumeric)
 
 	if (bNumeric)
 	{
-		m_szCodePage = std::format(L"{:#06x}", (WORD)m_CodePage);
+		m_strCodePage = std::format(L"{:#06x}", (WORD)m_CodePage);
 		//wsprintf(m_szCodePage, L"%04x", (WORD)m_CodePage);
 	}
 	else
 	{
-		m_CodePage.GetCodePageName(LANGIDFROMLCID(GetThreadLocale()), m_CodePage, m_szCodePage);
+		m_CodePage.GetCodePageName(LANGIDFROMLCID(GetThreadLocale()), m_CodePage, m_strCodePage);
 	}
 	return true;
 }
@@ -616,7 +616,7 @@ bool CWiseFile::SetDateCreation(bool fLocal)
 	}
 	else
 	{
-		m_szDateCreated = szDate;
+		m_strDateCreated = szDate;
 		return true;
 	}
 }
@@ -645,7 +645,7 @@ bool CWiseFile::SetDateLastAccess(bool fLocal)
 	}
 	else
 	{
-		m_szDateLastAccess = szDate;
+		m_strDateLastAccess = szDate;
 		return true;
 	}
 }
@@ -674,7 +674,7 @@ bool CWiseFile::SetDateLastWrite(bool fLocal)
 	}
 	else
 	{
-		m_szDateLastWrite = szDate;
+		m_strDateLastWrite = szDate;
 		return true;
 	}
 }
@@ -703,7 +703,7 @@ bool CWiseFile::SetTimeCreation(bool fLocal)
 	}
 	else
 	{
-		m_szTimeCreated = szTime;
+		m_strTimeCreated = szTime;
 		return true;
 	}
 }
@@ -732,7 +732,7 @@ bool CWiseFile::SetTimeLastAccess(bool fLocal)
 	}
 	else
 	{
-		m_szTimeLastAccess = szTime;
+		m_strTimeLastAccess = szTime;
 		return true;
 	}
 }
@@ -762,7 +762,7 @@ bool CWiseFile::SetTimeLastWrite(bool fLocal)
 	}
 	else
 	{
-		m_szTimeLastWrite = szTime;
+		m_strTimeLastWrite = szTime;
 		return true;
 	}
 }
@@ -830,7 +830,7 @@ bool CWiseFile::SetAttribs()
 {
 	if (!WI_IsFlagSet(m_State, FileState::Attached))
 	{
-		m_szAttribs = L"        ";
+		m_strAttribs = L"        ";
 		return false;
 	}
 
@@ -843,11 +843,11 @@ bool CWiseFile::SetAttribs()
 
 	if (m_dwAttribs & FILE_ATTRIBUTE_NORMAL)
 	{
-		m_szAttribs = L"        ";
+		m_strAttribs = L"        ";
 		return true;
 	}
 
-	m_szAttribs = std::format(L"{}{}{}{}{}{}{}{}",
+	m_strAttribs = std::format(L"{}{}{}{}{}{}{}{}",
 		((m_dwAttribs & FILE_ATTRIBUTE_ARCHIVE) ? 'A' : ' '),
 		((m_dwAttribs & FILE_ATTRIBUTE_HIDDEN) ? 'H' : ' '),
 		((m_dwAttribs & FILE_ATTRIBUTE_READONLY) ? 'R' : ' '),
@@ -895,50 +895,50 @@ bool CWiseFile::SetFlags()
 		{
 			LoadStringResource(STR_FLAG_DEBUG, szStr);
 		}
-		m_szFlags += szStr;
-		m_szFlags += szSep;
+		m_strFlags += szStr;
+		m_strFlags += szSep;
 	}
 	if (m_dwFlags & VS_FF_PRERELEASE)
 	{
 		LoadStringResource(STR_FLAG_PRERELEASE, szStr);
-		m_szFlags += szStr;
-		m_szFlags += szSep;
+		m_strFlags += szStr;
+		m_strFlags += szSep;
 	}
 	if (m_dwFlags & VS_FF_PATCHED)
 	{
 		LoadStringResource(STR_FLAG_PATCHED, szStr);
-		m_szFlags += szStr;
-		m_szFlags += szSep;
+		m_strFlags += szStr;
+		m_strFlags += szSep;
 	}
 	if (m_dwFlags & VS_FF_PRIVATEBUILD)
 	{
 		LoadStringResource(STR_FLAG_PRIVATEBUILD, szStr);
-		m_szFlags += szStr;
-		m_szFlags += szSep;
+		m_strFlags += szStr;
+		m_strFlags += szSep;
 	}
 	if (m_dwFlags & VS_FF_INFOINFERRED)
 	{
 		LoadStringResource(STR_FLAG_INFOINFERRED, szStr);
-		m_szFlags += szStr;
-		m_szFlags += szSep;
+		m_strFlags += szStr;
+		m_strFlags += szSep;
 	}
 	if (m_dwFlags & VS_FF_SPECIALBUILD)
 	{
 		LoadStringResource(STR_FLAG_SPECIALBUILD, szStr);
-		m_szFlags += szStr;
-		m_szFlags += szSep;
+		m_strFlags += szStr;
+		m_strFlags += szSep;
 	}
 
-	if (!m_szFlags.empty())
+	if (!m_strFlags.empty())
 	{
-		const size_t sep = m_szFlags.find_last_of(szSep[0]);
-		m_szFlags.resize(sep);
+		const size_t sep = m_strFlags.find_last_of(szSep[0]);
+		m_strFlags.resize(sep);
 	}
 	// if we've looked at it, and we still don't have a string for it
 	// put a default one in (unless the flags are 00000000)
-	if ( (m_szFlags.length() < 3) && (m_dwFlags != 0))
+	if ( (m_strFlags.length() < 3) && (m_dwFlags != 0))
 	{
-		m_szFlags = std::format(L"{:010x}", m_dwFlags);
+		m_strFlags = std::format(L"{:010x}", m_dwFlags);
 	}
 
 	return true;
@@ -951,7 +951,7 @@ bool CWiseFile::SetLanguage(UINT Language)
 	if (!Language)
 	{
 		VerLanguageName(Language, szTemp, 255);
-		m_szLanguage = std::format(L"%lu %s", Language, szTemp);
+		m_strLanguage = std::format(L"%lu %s", Language, szTemp);
 		WI_SetFlag(m_State, FileState::Language);
 		return true;
 	}
@@ -960,7 +960,7 @@ bool CWiseFile::SetLanguage(UINT Language)
 	{
 		VerLanguageName(Language, szTemp, 255);
 	}
-	m_szLanguage = std::format(L"%lu %s", Language, szTemp);
+	m_strLanguage = std::format(L"%lu %s", Language, szTemp);
 	WI_SetFlag(m_State, FileState::Language);
 	return true;
 }
