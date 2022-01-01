@@ -35,4 +35,14 @@ void winrt::vfi_wux::implementation::MainWindow::AppBarButton_Click(winrt::Windo
     MyList thelist;
     auto p = std::make_shared<CWiseFile>(L"c:\\windows\\system32\\wwahost.exe");
     thelist.AddHead(p);
+    p->GetAttribs();
+    p->GetCodePage();
+    p->GetProductVersion();
+    p->GetFileVersion();
+    p->GetFlags();
+    p->GetOS();
+    p->GetSize();
+    p->GetType();
+
+
 }

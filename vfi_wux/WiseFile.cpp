@@ -146,21 +146,21 @@ int CWiseFile::Attach(std::wstring strFileSpec)
 	SetDateLastAccess();
 	SetTimeLastAccess();
 
-	if (0 != FindNextFile(hff, &fd))
-	{
-		FindClose(hff);
-		return FWF_ERR_WILDCARD;
-	}
-	FindClose(hff);
+	//if (0 != FindNextFile(hff, &fd))
+	//{
+	//	FindClose(hff);
+	//	return FWF_ERR_WILDCARD;
+	//}
+	//FindClose(hff);
 
 	SetState(CWiseFile::FileState::FWFS_ATTACHED);
 
-	SetDateCreation();
-	SetTimeCreation();
-	SetDateLastWrite();
-	SetTimeLastWrite();
-	SetDateLastAccess();
-	SetTimeLastAccess();
+	//SetDateCreation();
+	//SetTimeCreation();
+	//SetDateLastWrite();
+	//SetTimeLastWrite();
+	//SetDateLastAccess();
+	//SetTimeLastAccess();
 
 	return FWF_SUCCESS;
 }
