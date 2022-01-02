@@ -4,6 +4,8 @@
 #include "MainWindow.g.cpp"
 #endif
 #include "mylist.h"
+#include <iostream>
+#include <locale>
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;

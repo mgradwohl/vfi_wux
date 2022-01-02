@@ -10,6 +10,8 @@
 #include <vector>
 #include <memory>
 #include <format>
+#include <iostream>
+#include <locale>
 
 // Undefine GetCurrentTime macro to prevent
 // conflict with Storyboard::GetCurrentTime

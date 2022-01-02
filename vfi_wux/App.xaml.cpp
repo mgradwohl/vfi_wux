@@ -20,6 +20,12 @@ using namespace vfi_wux::implementation;
 /// </summary>
 App::App()
 {
+    // on startup, the global locale is the "C" locale
+    // replace the C++ global locale as well as the C locale with the UTF8
+    // use the new global locale for future wide character output
+    auto UTF8 = std::locale("en_US.UTF-8");
+    std::locale::global(UTF8);
+    std::wcout.imbue(UTF8);
     InitializeComponent();
 
 #if defined _DEBUG && !defined DISABLE_XAML_GENERATED_BREAK_ON_UNHANDLED_EXCEPTION
