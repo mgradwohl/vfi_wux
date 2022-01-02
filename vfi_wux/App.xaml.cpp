@@ -26,6 +26,8 @@ App::App()
     auto UTF8 = std::locale("en_US.UTF-8");
     std::locale::global(UTF8);
     std::wcout.imbue(UTF8);
+    setlocale(LC_ALL, "en_us.utf8");
+
     InitializeComponent();
 
 #if defined _DEBUG && !defined DISABLE_XAML_GENERATED_BREAK_ON_UNHANDLED_EXCEPTION
