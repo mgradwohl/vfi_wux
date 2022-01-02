@@ -38,8 +38,7 @@ void winrt::vfi_wux::implementation::MainWindow::AppBarButton_Click(winrt::Windo
     p->ReadVersionInfo();
     p->GetAttribs();
     p->GetCodePage();
-    p->SetFileVersion();
-    p->SetProductVersion();
+    p->SetVersionStrings();
     p->GetProductVersion();
     p->GetFileVersion();
     p->GetFlags();
