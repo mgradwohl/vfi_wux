@@ -32,7 +32,7 @@ public:
 	{
 		m_mcp = {};
 		m_wCodePage = 0;
-		m_pszCodePage.empty();
+		m_pszCodePage.clear();
 		m_pML = NULL;
 
 		if (SUCCEEDED(CoInitialize(NULL)))
@@ -429,7 +429,7 @@ public:
 	virtual ~TCodePage()
 	{
 		m_wCodePage = 0;
-		m_pszCodePage.empty();
+		m_pszCodePage.clear();
 	}
 
 	operator LPCTSTR()

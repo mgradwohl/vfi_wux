@@ -32,17 +32,24 @@
 	// this is just too many confusing states
 	enum class FileState
 	{
-		Invalid			= 0x0000,		// invalid state
-		Valid			= 0x0001,		// constructed only
-		Attached		= 0x0002,		// attached to a file successfully
-		Size			= 0x0004,		// size information is valid
-		Version			= 0x0008,		// version information is read
-		Language		= 0x0010,		// language information is read
-		CRC_Pending		= 0x0020,
-		CRC_Working		= 0x0040,		// working on CRC
-		CRC_Complete	= 0x0080,		// CRC complete
-		CRC_Error		= 0x0100,		// error generating CRC
-		PendingDeletion = 0x0200,		// pending deletion from list
+		Invalid			= 0x00000,		// invalid state
+		Valid			= 0x00001,		// constructed only
+		Attached		= 0x00002,		// attached to a file successfully
+		Date			= 0x00004,
+		DateString		= 0x00008,
+		Size			= 0x00010,		// size information is valid
+		SizeString		= 0x00020,
+		Version			= 0x00040,		// version information has been read
+		VersionValid	= 0x00080,
+		VersionString	= 0x00100,
+		Language		= 0x00200,		// language information is read
+		LanguageString	= 0x00400,
+		CRC_Pending		= 0x00800,
+		CRC_Working		= 0x01000,		// working on CRC
+		CRC_Complete	= 0x02000,		// CRC complete
+		CRC_Error		= 0x04000,		// error generating CRC
+		CRC_String		= 0x08000,
+		PendingDeletion = 0x10000,		// pending deletion from list
 	}; 
 	DEFINE_ENUM_FLAG_OPERATORS(FileState);
 
@@ -52,29 +59,33 @@ public:
 
 private:
 	// Member Variables
-	// Set when a file is added
+	// Set when Attach() called
 	std::wstring		m_strFullPath;
 	std::wstring		m_strPath;
 	std::wstring		m_strName;
 	std::wstring		m_strExt;
+	std::wstring		m_strAttribs;
+	std::wstring		m_strSize;
+	std::wstring		m_strDateCreated;
+	std::wstring		m_strTimeCreated;
+	std::wstring		m_strDateLastAccess;
+	std::wstring		m_strTimeLastAccess;
+	std::wstring		m_strDateLastWrite;
+	std::wstring		m_strTimeLastWrite;
 
-	// Set when information requested, if not set
-	std::wstring		m_szAttribs;
-	std::wstring		m_szFlags;
-	std::wstring		m_szOS;
-	std::wstring		m_szType;
-	std::wstring		m_szSize;
-	std::wstring		m_szDateCreated;
-	std::wstring		m_szTimeCreated;
-	std::wstring		m_szDateLastAccess;
-	std::wstring		m_szTimeLastAccess;
-	std::wstring		m_szDateLastWrite;
-	std::wstring		m_szTimeLastWrite;
-	std::wstring		m_szLanguage;
-	std::wstring		m_szCodePage;
-	std::wstring		m_szCRC;
-	std::wstring		m_szFileVersion;
-	std::wstring		m_szProductVersion;
+	// Set after ReadVersionInfo and SetVersionStrings is called
+	std::wstring		m_strFlags;
+	std::wstring		m_strOS;
+	std::wstring		m_strType;
+	std::wstring		m_strFileVersion;
+	std::wstring		m_strProductVersion;
+
+	// Set after ReadVersionInfo and SetLanguage is called
+	std::wstring		m_strLanguage;
+	std::wstring		m_strCodePage;
+
+	// set when CRC is calculated and complete
+	std::wstring		m_strCRC;
 
 	// from WIN32_FIND_DATA
 	DWORD		m_dwAttribs;
@@ -82,7 +93,7 @@ private:
 	SYSTEMTIME	m_stUTCLastAccess;
 	SYSTEMTIME	m_stUTCLastWrite;
 
-	// set when requested, if not set
+	// set when Attach() called
 	SYSTEMTIME	m_stLocalCreation;
 	SYSTEMTIME	m_stLocalLastAccess;
 	SYSTEMTIME	m_stLocalLastWrite;
@@ -99,13 +110,9 @@ private:
 	DWORD		m_dwCRC;
 	FileState	m_State;
 
-	// Flags
+	// Version Flags
+	// todo incorporate into FileState::
 	bool m_fDebugStripped;
-	bool m_fHasVersion;
-	bool m_fszOS;
-	bool m_fszType;
-	bool m_fszFlags;
-	bool m_fszAttribs;
 
 public:
 	// construction, destruction
@@ -122,6 +129,7 @@ public:
 	// handlers for listview
 	const std::wstring& GetFieldString(int iField, bool fOptions);
 
+	// currently unused
 	bool ReadVersionInfoEx();
 
 	const std::wstring& GetFullPath()
@@ -162,12 +170,12 @@ public:
 
 	const std::wstring& GetSize()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Size))
+		if (WI_IsFlagSet(m_State, FileState::SizeString))
 		{
-			return m_szSize;
+			return m_strSize;
 		}
 		SetSize(false);
-		return m_szSize;
+		return m_strSize;
 	}
 
 	uint64_t Size()
@@ -177,190 +185,215 @@ public:
 
 	const std::wstring& GetCRC()
 	{
-		if (WI_IsFlagSet(m_State, FileState::CRC_Complete))
+		if (WI_IsFlagSet(m_State, FileState::CRC_String))
 		{
-			return m_szCRC;
+			return m_strCRC;
 		}
 		SetCRC(true);
-		return m_szCRC;
+		return m_strCRC;
 	}
 
 	const std::wstring& GetOS()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Version) && m_fszOS)
+		if (WI_IsFlagSet(m_State, FileState::VersionString))
 		{
-			return m_szOS;
+			return m_strOS;
 		}
-		SetOS();
-		return m_szOS;
+
+		if (WI_IsFlagSet(m_State, FileState::VersionValid))
+		{
+			SetVersionStrings();
+		}
+		return m_strOS;
 	}
 
 	const std::wstring& GetType()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Attached) && m_fszType)
+		if (WI_IsFlagSet(m_State, FileState::VersionString))
 		{
-			return m_szType;
+			return m_strType;
 		}
-		SetType();
-		return m_szType;
+
+		if (WI_IsFlagSet(m_State, FileState::VersionValid))
+		{
+			SetVersionStrings();
+		}
+		return m_strType;
 	}
 
 	const std::wstring& GetDateLastAccess() const
 	{
+		if (WI_IsFlagSet(m_State, FileState::DateString))
+		{
+			return m_strDateLastAccess;
+		}
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szDateLastAccess;
+			SetDateTimeStrings();
+			WI_SetFlag(m_State, FileState::DateString);
 		}
-		return L"\0";
+		return m_strDateLastAccess;
 	}
 
 	const std::wstring& GetTimeLastAccess() const
 	{
+		if (WI_IsFlagSet(m_State, FileState::DateString))
+		{
+			return m_strTimeLastAccess;
+		}
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szTimeLastAccess;
+			SetDateTimeStrings();
+			WI_SetFlag(m_State, FileState::DateString);
 		}
-		return L"\0";
+		return m_strTimeLastAccess;
 	}
 
 	const std::wstring& GetDateCreated() const
 	{
+		if (WI_IsFlagSet(m_State, FileState::DateString))
+		{
+			return m_strDateCreated;
+		}
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szDateCreated;
+			SetDateTimeStrings();
+			WI_SetFlag(m_State, FileState::DateString);
 		}
-		return L"\0";
+		return m_strDateCreated;
 	}
 
 	const std::wstring& GetTimeCreated() const
 	{
+		if (WI_IsFlagSet(m_State, FileState::DateString))
+		{
+			return m_strTimeCreated;
+		}
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szTimeCreated;
+			SetDateTimeStrings();
+			WI_SetFlag(m_State, FileState::DateString);
 		}
-		return L"\0";
+		return m_strTimeCreated;
 	}
 
 	const std::wstring& GetDateLastWrite() const
 	{
+		if (WI_IsFlagSet(m_State, FileState::DateString))
+		{
+			return m_strDateLastWrite;
+		}
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szDateLastWrite;
+			SetDateTimeStrings();
+			WI_SetFlag(m_State, FileState::DateString);
 		}
-		return L"\0";
+		return m_strDateLastWrite;
 	}
 
 	const std::wstring& GetTimeLastWrite() const
 	{
+		if (WI_IsFlagSet(m_State, FileState::DateString))
+		{
+			return m_strTimeLastWrite;
+		}
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szTimeLastWrite;
+			SetDateTimeStrings();
+			WI_SetFlag(m_State, FileState::DateString);
 		}
-		return L"\0";
+		return m_strTimeLastWrite;
 	}
 
 	const std::wstring& GetAttribs()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Attached) && m_fszAttribs)
+		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
-			return m_szAttribs;
+			return m_strAttribs;
 		}
-		SetAttribs();
-		return m_szAttribs;
+		//SetAttribs();
+		return m_strAttribs;
 	}
 
 	const std::wstring& GetFileVersion()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Attached))
+		if (WI_IsFlagSet(m_State, FileState::VersionString))
 		{
-			return m_szFileVersion;
+			return m_strFileVersion;
 		}
 
-		if (SetProductVersion() && SetFileVersion())
+		if (WI_IsFlagSet(m_State, FileState::VersionValid))
 		{
-			WI_SetFlag(m_State, FileState::Version);
+			SetVersionStrings();
 		}
-		return m_szFileVersion;
+
+		return m_strFileVersion;
 	}
 
 	const std::wstring& GetProductVersion()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Version))
+		if (WI_IsFlagSet(m_State, FileState::VersionString))
 		{
-			return m_szProductVersion;
+			return m_strProductVersion;
 		}
 
-		if (SetProductVersion() && SetFileVersion())
+		if (WI_IsFlagSet(m_State, FileState::VersionValid))
 		{
-			WI_SetFlag(m_State, FileState::Version);
+			SetVersionStrings();
 		}
-		return m_szProductVersion;
+		return m_strProductVersion;
 	}
 
 	const std::wstring& GetLanguage()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Language))
+		if (WI_IsFlagSet(m_State, FileState::LanguageString))
 		{
-			return m_szLanguage;
+			return m_strLanguage;
 		}
-		SetLanguage(m_wLanguage);
-		return m_szLanguage;
+		SetLanguage(m_wLanguage, false);
+		return m_strLanguage;
 	}
 
 	const std::wstring& GetCodePage()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Language))
+		if (WI_IsFlagSet(m_State, FileState::LanguageString))
 		{
-			return m_szCodePage;
+			return m_strCodePage;
 		}
-		SetCodePage(m_CodePage);
-		return m_szCodePage;
+		SetLanguage(m_wLanguage, false);
+		return m_strCodePage;
 	}
 
 	const std::wstring& GetFlags()
 	{
-		if (WI_IsFlagSet(m_State, FileState::Version) && m_fszFlags)
+		if (WI_IsFlagSet(m_State, FileState::VersionString))
 		{
-			return m_szFlags;
+			return m_strFlags;
 		}
-		SetFlags();
-		return m_szFlags;
+		SetVersionStrings();
+		return m_strFlags;
 	}
 
 	bool SetSize(bool bHex = false);
 	bool SetAttribs();
 
-	bool SetDateCreation(bool fLocal = true);
-	bool SetDateLastAccess(bool fLocal = true);
-	bool SetDateLastWrite(bool fLocal = true);
+	bool SetDateTimeStrings(bool fLocal = true);
 
-	bool SetTimeCreation(bool fLocal = true);
-	bool SetTimeLastAccess(bool fLocal = true);
-	bool SetTimeLastWrite(bool fLocal = true);
-
-	bool SetFileVersion();
+	bool SetVersionStrings();
 	bool GetFileVersion(LPDWORD pdwHigh, LPDWORD pdwLow);
 	bool GetFileVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS);
 
-	bool SetProductVersion();
 	bool GetProductVersion(LPDWORD pdwMS, LPDWORD pdwLS);
 	bool GetProductVersion(LPWORD pwHighMS, LPWORD pwLowMS, LPWORD pwHighLS, LPWORD pwLowLS);
 
-	bool SetLanguage(UINT Language);
-	bool SetCodePage(bool bNumeric = false);
-
-	bool SetOS();
-	bool SetType();
-	bool SetFlags();
+	bool SetLanguage(UINT Language, bool bNumeric = false);
 
 	bool SetCRC(bool bHex = true);
-
-	bool TouchFileTime(FILETIME* lpTime);
-
 	void _SetCRC(DWORD dwCRC)
 	{
 		m_dwCRC = dwCRC;
 	}
-	// execute helpers
+
+	bool TouchFileTime(FILETIME* lpTime);
 	bool  ReadVersionInfo();
 };

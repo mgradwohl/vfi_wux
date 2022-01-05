@@ -4,6 +4,8 @@
 #include "MainWindow.g.cpp"
 #endif
 #include "mylist.h"
+#include <iostream>
+#include <locale>
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -32,14 +34,16 @@ namespace winrt::vfi_wux::implementation
 
 void winrt::vfi_wux::implementation::MainWindow::AppBarButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
+    auto l = std::locale().name().c_str();
+    auto u = std::locale("").name().c_str();
+
     MyList thelist;
     auto p = std::make_shared<CWiseFile>(L"c:\\windows\\system32\\wwahost.exe");
     thelist.AddHead(p);
     p->ReadVersionInfo();
     p->GetAttribs();
     p->GetCodePage();
-    p->SetFileVersion();
-    p->SetProductVersion();
+    p->SetVersionStrings();
     p->GetProductVersion();
     p->GetFileVersion();
     p->GetFlags();

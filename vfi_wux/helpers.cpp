@@ -23,23 +23,25 @@ bool LoadStringResource(UINT id, std::wstring& strDest)
 // Get number as a string
 bool int2str(std::wstring& strDest, QWORD i)
 {
-	// get the separator
-	std::wstring strDec;
-	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, &strDec[0], 2);
+	strDest = std::format(L"{:L}", i);
 
-	wchar_t pBuffer[200];
-	std::wstring strBuffer = strDest;
-	// TODO where did these numbers come from
-	strBuffer.resize(68);
-	_ui64tow_s(i, &strBuffer[0], 67, 10);
+	//// get the separator
+	//std::wstring strDec;
+	//GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, &strDec[0], 2);
 
-	int length = GetNumberFormatW(LOCALE_USER_DEFAULT, 0, strBuffer.c_str(), nullptr, pBuffer, 65);
-	if (length == 0)
-		return false;
+	//wchar_t pBuffer[200];
+	//std::wstring strBuffer = strDest;
+	//// TODO where did these numbers come from
+	//strBuffer.resize(68);
+	//_ui64tow_s(i, &strBuffer[0], 67, 10);
 
-	strDest.assign(pBuffer, length);
-	const size_t decimal = strDest.find_last_of(strDec[0]);
-	strDest.resize(decimal);
+	//int length = GetNumberFormatW(LOCALE_USER_DEFAULT, 0, strBuffer.c_str(), nullptr, pBuffer, 65);
+	//if (length == 0)
+	//	return false;
+
+	//strDest.assign(pBuffer, length);
+	//const size_t decimal = strDest.find_last_of(strDec[0]);
+	//strDest.resize(decimal);
 
 	return true;
 }
