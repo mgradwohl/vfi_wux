@@ -123,7 +123,7 @@ public:
 	~CWiseFile();
 
 	// initialization, release
-	bool Attach(const std::wstring& strFileSpec) const;
+	bool Attach(const std::wstring& strFileSpec);
 	bool Detach();
 
 	// handlers for listview
@@ -221,7 +221,7 @@ public:
 		return m_strType;
 	}
 
-	const std::wstring& GetDateLastAccess() const
+	const std::wstring& GetDateLastAccess()
 	{
 		if (WI_IsFlagSet(m_State, FileState::DateString))
 		{
@@ -235,7 +235,7 @@ public:
 		return m_strDateLastAccess;
 	}
 
-	const std::wstring& GetTimeLastAccess() const
+	const std::wstring& GetTimeLastAccess()
 	{
 		if (WI_IsFlagSet(m_State, FileState::DateString))
 		{
@@ -249,7 +249,7 @@ public:
 		return m_strTimeLastAccess;
 	}
 
-	const std::wstring& GetDateCreated() const
+	const std::wstring& GetDateCreated()
 	{
 		if (WI_IsFlagSet(m_State, FileState::DateString))
 		{
@@ -263,7 +263,7 @@ public:
 		return m_strDateCreated;
 	}
 
-	const std::wstring& GetTimeCreated() const
+	const std::wstring& GetTimeCreated()
 	{
 		if (WI_IsFlagSet(m_State, FileState::DateString))
 		{
@@ -277,7 +277,7 @@ public:
 		return m_strTimeCreated;
 	}
 
-	const std::wstring& GetDateLastWrite() const
+	const std::wstring& GetDateLastWrite()
 	{
 		if (WI_IsFlagSet(m_State, FileState::DateString))
 		{
@@ -291,7 +291,7 @@ public:
 		return m_strDateLastWrite;
 	}
 
-	const std::wstring& GetTimeLastWrite() const
+	const std::wstring& GetTimeLastWrite()
 	{
 		if (WI_IsFlagSet(m_State, FileState::DateString))
 		{
@@ -305,7 +305,7 @@ public:
 		return m_strTimeLastWrite;
 	}
 
-	const std::wstring& GetAttribs()
+	const std::wstring& GetAttribs() const
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
