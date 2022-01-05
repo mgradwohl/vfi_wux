@@ -67,10 +67,10 @@ CWiseFile::CWiseFile()
 	m_fszAttribs = false;
 	m_fszOS = false;
 	m_fszType = false;
-
 }
 
-CWiseFile::CWiseFile(std::wstring strFileSpec) : CWiseFile()
+
+CWiseFile::CWiseFile(const std::wstring& strFileSpec) : CWiseFile()
 {
 	Attach(strFileSpec);
 	WI_SetFlag(m_State, FileState::CRC_Working);
@@ -81,7 +81,7 @@ CWiseFile::~CWiseFile()
 	m_State = FileState::Invalid;
 }
 
-bool CWiseFile::Attach(std::wstring strFileSpec)
+bool CWiseFile::Attach(const std::wstring& strFileSpec) const
 {
 	// TODO check to see if it's a weird path
 	//if (0 == StrCmpN(pszFileSpec, L"\\\\?\\", 4))
