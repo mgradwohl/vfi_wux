@@ -65,7 +65,8 @@ CWiseFile::CWiseFile()
 
 }
 
-CWiseFile::CWiseFile(std::wstring strFileSpec) : CWiseFile()
+
+CWiseFile::CWiseFile(const std::wstring& strFileSpec) : CWiseFile()
 {
 	Attach(strFileSpec);
 	WI_SetFlag(m_State, FileState::CRC_Pending);
@@ -76,7 +77,7 @@ CWiseFile::~CWiseFile()
 	m_State = FileState::Invalid;
 }
 
-bool CWiseFile::Attach(std::wstring strFileSpec)
+bool CWiseFile::Attach(const std::wstring& strFileSpec)
 {
 	if (strFileSpec.starts_with(L"\\\\?\\"))
 	{
