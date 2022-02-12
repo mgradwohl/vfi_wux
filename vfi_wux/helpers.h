@@ -47,7 +47,9 @@ constexpr size_t MAX_USERNAME = UNLEN + 1;
 constexpr size_t maxExtendedPathLength = 0x7FFF - 24;
 
 // QWORD
-#define QWORD			uint64_t
+typedef uint64_t		QWORD;
+//#define QWORD			uint64_t
+#define PQWORD			QWORD*
 #define LPQWORD			QWORD*
 #define MAKEDWORD(a, b)	((DWORD)(((WORD)(a)) | ((DWORD)((WORD)(b))) << 16))
 #define MAKEQWORD(a, b)	((QWORD)(((DWORD)(a)) | ((QWORD)((DWORD)(b))) << 32))

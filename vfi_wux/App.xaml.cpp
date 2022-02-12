@@ -20,13 +20,12 @@ using namespace vfi_wux::implementation;
 /// </summary>
 App::App()
 {
-    // on startup, the global locale is the "C" locale
-    // replace the C++ global locale as well as the C locale with the UTF8
-    // use the new global locale for future wide character output
+    // make sure Windows Console and C++ runtime are set for utf8
     auto UTF8 = std::locale("en_US.UTF-8");
     std::locale::global(UTF8);
-    std::wcout.imbue(UTF8);
+    std::cout.imbue(UTF8);
     setlocale(LC_ALL, "en_us.utf8");
+    SetConsoleOutputCP(CP_UTF8);
 
     InitializeComponent();
 

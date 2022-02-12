@@ -52,7 +52,6 @@ public:
 			if (S_OK  == m_pML->GetCodePageInfo(CodePage, wLanguage, &m_mcp))
 			{
 				pszBuf = std::format(L"{} {})", m_mcp.wszDescription, CodePage);
-//				wsprintf( pszBuf, L"%s (%lu)", m_mcp.wszDescription, CodePage);
 				return true;
 			}
 		}
@@ -62,7 +61,6 @@ public:
 		if (GetCPInfoEx(CodePage, 0, &cp))
 		{
 			pszBuf = std::format(L"{}", cp.CodePageName);
-			//wsprintf( pszBuf, L"%s", cp.CodePageName);
 			return true;
 		}
 		
@@ -488,7 +486,6 @@ public:
 
 private:
 	IMultiLanguage2* m_pML;
-
 	MIMECPINFO m_mcp;
 	WORD m_wCodePage;
 	std::wstring m_pszCodePage;

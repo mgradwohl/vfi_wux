@@ -117,11 +117,13 @@ private:
 public:
 	// construction, destruction
 	CWiseFile();
-	CWiseFile(std::wstring strFileSpec);
+	CWiseFile(const std::wstring& strFileSpec);
+	CWiseFile(CWiseFile& wf) = delete;
+	CWiseFile const& operator=(CWiseFile& wf) = delete;
 	~CWiseFile();
 
 	// initialization, release
-	bool Attach(std::wstring strFileSpec);
+	bool Attach(const std::wstring& strFileSpec);
 	bool Detach();
 
 	// handlers for listview
@@ -303,7 +305,7 @@ public:
 		return m_strTimeLastWrite;
 	}
 
-	const std::wstring& GetAttribs()
+	const std::wstring& GetAttribs() const
 	{
 		if (WI_IsFlagSet(m_State, FileState::Attached))
 		{
